@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idle Game</title>
+</head>
+<body>
+    <h1>Idle Game</h1>
+    <p>Score: <span id="score">0</span></p>
+    <button id="updateButton">Update Score</button>
+
+    <script>
+        // Fetch the current score from the backend
+        function fetchScore() {
+            fetch('http://127.0.0.1:5000/get_score')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('score').innerText = data.score;  // Update the score displayed
+                })
+                .catch(error => console.error('Error fetching score:', error));
+        }
+
+        // Update the score on the backend
+        function updateScore(newScore) {
+            fetch('http://127.0.0.1:5000/update_score', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ score: newScore })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message);  // Log the success message
+                fetchScore();  // Fetch the updated score after updating it
+            })
+            .catch(error => console.error('Error updating score:', error));
+        }
+
+        // Set up the button to update the score
+        document.getElementById('updateButton').addEventListener('click', function() {
+            const currentScore = parseInt(document.getElementById('score').innerText);
+            const newScore = currentScore + 1;  // Increment score by 1
+            updateScore(newScore);
+        });
+
+        // Fetch the initial score when the page loads
+        fetchScore();
+    </script>
+</body>
+</html>
