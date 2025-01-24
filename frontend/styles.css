@@ -1,49 +1,82 @@
-/* General reset */
+/* General page settings */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
   }
   
+  /* Body styling */
   body {
-    font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f0f0; /* Light gray background */
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 100vh; /* Full viewport height */
+    text-align: center;
+  }
+
+  /* Container to hold the score and button */
+  .container {
+    background-color: #fff; /* White background for the container */
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Slight shadow for depth */
+    padding: 40px;
+    width: 300px; /* Set a fixed width for better alignment */
+    display: flex;
     flex-direction: column;
+    align-items: center;
   }
   
-  header {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
+  /* Title text */
   h1 {
-    font-size: 3rem;
-    color: #333;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #333; /* Dark gray color for the text */
   }
   
-  #gameArea {
-    text-align: center;
+  /* Score display */
+  #score {
+    font-size: 2rem;
+    color: #4CAF50; /* Green color for the score */
+    font-weight: bold;
+    margin-bottom: 30px;
   }
   
+  /* Button styling */
   button {
-    padding: 15px 30px;
-    font-size: 1.5rem;
-    background-color: #4CAF50;
+    background-color: #4CAF50; /* Green background for the button */
     color: white;
     border: none;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background-color: #45a049;
-  }
-  
-  #score {
-    margin-top: 20px;
+    padding: 15px 30px;
     font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  /* Button hover effect */
+  button:hover {
+    background-color: #45a049; /* Slightly darker green on hover */
+  }
+  
+  /* Responsive design for smaller screens */
+  @media (max-width: 480px) {
+    .container {
+      width: 100%;
+      padding: 20px;
+    }
+  
+    h1 {
+      font-size: 1.5rem;
+    }
+  
+    #score {
+      font-size: 1.5rem;
+    }
+  
+    button {
+      font-size: 1rem;
+    }
   }
   
