@@ -3,51 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Idle Game</title>
+    <title>Incremental Game</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Idle Game</h1>
-    <p>Score: <span id="score">0</span></p>
-    <button id="updateButton">Update Score</button>
+    <div id="points-display">
+        <p id="score">Score: 0</p> <!-- Score will dynamically update here -->
+    </div>
+    <button id="update-button">Update Score</button>
 
-    <script>
-        // Fetch the current score from the backend
-        function fetchScore() {
-            fetch('http://127.0.0.1:5000/get_score')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('score').innerText = data.score;  // Update the score displayed
-                })
-                .catch(error => console.error('Error fetching score:', error));
-        }
+    <!-- Link to the JavaScript file -->
+    <script src="app.js"></script>
+    <!-- Changelog Button -->
+    <a href="changelog.html" class="changelog-button">Changelog (v0.1)</a>
 
-        // Update the score on the backend
-        function updateScore(newScore) {
-            fetch('http://127.0.0.1:5000/update_score', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ score: newScore })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data.message);  // Log the success message
-                fetchScore();  // Fetch the updated score after updating it
-            })
-            .catch(error => console.error('Error updating score:', error));
-        }
-
-        // Set up the button to update the score
-        document.getElementById('updateButton').addEventListener('click', function() {
-            const currentScore = parseInt(document.getElementById('score').innerText);
-            const newScore = currentScore + 1;  // Increment score by 1
-            updateScore(newScore);
-        });
-
-        // Fetch the initial score when the page loads
-        fetchScore();
-    </script>
+    <!-- The Modal -->
+    <div id="changelog-modal" class="modal">
+      <div class="modal-content">
+        <h2>Game Changelog</h2>
+        <div class="changelog-content">
+          <p>- Initial game setup with score tracking.</p>
+          <p>- Implemented the ability to update score and display it on the page.</p>
+          <p>- Added Flask backend for score persistence.</p>
+        <!-- Add more changes as needed -->
+        </div>
+        <button id="close-modal" class="close-modal">Close</button>
+      </div>
+    </div>
 </body>
 </html>
