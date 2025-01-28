@@ -1,33 +1,33 @@
-// Ensure this is running after the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-
     const scoreElement = document.getElementById('score');  // The element to display the score
-    const updateButton = document.getElementById('update-button');  // Button to update the score
 
-    // Save the score to localStorage
-    function saveScore(score) {
-        localStorage.setItem('playerScore', score);
-    }
-
-    // Load the score from localStorage
+    // Function to load the score from localStorage
     function loadScore() {
         const savedScore = localStorage.getItem('playerScore');
-        if (savedScore !== null) {
-            return parseInt(savedScore);  // Return the saved score if it exists
-        } else {
-            return 0;  // Return 0 if no score is saved
-        }
+        return savedScore !== null ? parseInt(savedScore) : 0;
     }
 
-    // Load the saved score when the page is loaded
-    let score = loadScore();
-    scoreElement.textContent = `Score: ${score}`;  // Display the loaded score
+    // Set the score in localStorage and update UI
+    function saveScore(score) {
+        localStorage.setItem('playerScore', score);
+        scoreElement.textContent = `Score: ${score}`;  // Update UI immediately after saving
+    }
 
-    // Update the score when the button is clicked
-    updateButton.addEventListener('click', () => {
-        score += 1;  // Increment the score by 1
-        scoreElement.textContent = `Score: ${score}`;  // Update the displayed score
-        saveScore(score);  // Save the updated score to localStorage
-    });
+    // Initialize the score from localStorage
+    let score = loadScore();
+    scoreElement.textContent = `Score: ${score}`;  // Display the score on page load
+
+    // Event listener to update the score (e.g., when a button is clicked)
+    const updateButton = document.getElementById('update-button');
+    if (updateButton) {
+        updateButton.addEventListener('click', () => {
+            score += 1;  // Increment the score by 1
+            saveScore(score);  // Save the updated score and update UI
+        });
+    }
+
+    // You can reset the score to 0 (or any value) for testing purposes
+    // Example: Reset the score when you want to test it
+    // localStorage.setItem('playerScore', 0); // Uncomment this line for testing
 
 });
