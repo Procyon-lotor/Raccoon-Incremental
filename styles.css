@@ -144,11 +144,14 @@
     background-color: #efefef;
   }
 
-  /* Changelog Header Style */
-  /* Changelog Title Style */
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  
   #changelog-header {
     position: fixed;
-    top: 50px; /* Position it a little below the very top of the page */
+    top: 50px; /* Keep it at the very top */
     left: 50%;
     transform: translateX(-50%); /* Center the title horizontally */
     font-size: 2.5rem;
@@ -168,11 +171,13 @@
     top: 275px; /* Moves it down from the top of the screen by 75px */
     left: 0;
     right: 0;
-    padding: 0 20px; /* Adds left and right padding */
+    padding: 40px 20px; /* Adds left and right padding */
     color: #efefef;
     max-width: 900px; /* Sets a maximum width for the content */
     margin-left: auto; /* Centers the content */
     margin-right: auto; /* Centers the content */
+    max-height: calc(100vh - 275px); /* Ensure content is contained below the description */
+    overflow-y: auto; /* Makes the content scrollable */
   }
 
   .changelog-content h2 {
