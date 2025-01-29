@@ -13,23 +13,45 @@
     </div>
     <button id="update-button">Update Score</button>
 
+    <!-- Tabs and content -->
+    <div class="tab-buttons">
+        <button id="main-tab-btn" class="tab-button">Main</button>
+        <button id="settings-tab-btn" class="tab-button">Settings</button>
+    </div>
+
+    <!-- Main Tab Content -->
+    <div id="main-tab-content" style="display: block;">
+        <h2>Welcome to the Main Tab!</h2>
+        <p>This is the main content of your game.</p>
+    </div>
+
+    <!-- Settings Tab Content (contains the autosave box) -->
+    <div id="settings-tab-content" style="display: none;">
+        <h2>Settings</h2>
+        <p>Here you can modify the game settings.</p>
+        
+        <!-- Autosave Setting Box -->
+        <div id="manual-save-setting" class="setting-box">
+          <label for="manual-save-button">Manual Save:</label>
+          <button id="manual-save-button">Save Now</button>
+          <span id="manual-save-status"></span>
+      </div>
+        <div id="autosave-setting" class="setting-box">
+            <label for="autosave-slider">Autosave (how often the game saves by itself):</label>
+            <input type="range" id="autosave-slider" min="1" max="4" value="2">
+            <span id="autosave-time">10 seconds</span>
+        </div>
+        <div id="hard-reset-setting" class="setting-box">
+          <button id="hard-reset-button">Hard Reset</button>
+          <p id="hard-reset-status"></p>
+      </div>
+      
+    </div>
+
     <!-- Link to the JavaScript file -->
     <script src="app.js"></script>
-    <!-- Changelog Button -->
-    <a href="changelog.html" class="changelog-button">Changelog (v0.1)</a>
 
-    <!-- The Modal -->
-    <div id="changelog-modal" class="modal">
-      <div class="modal-content">
-        <h2>Game Changelog</h2>
-        <div class="changelog-content">
-          <p>- Initial game setup with score tracking.</p>
-          <p>- Implemented the ability to update score and display it on the page.</p>
-          <p>- Added Flask backend for score persistence.</p>
-        <!-- Add more changes as needed -->
-        </div>
-        <button id="close-modal" class="close-modal">Close</button>
-      </div>
-    </div>
+    <!-- Changelog Button -->
+    <a href="changelog.html" class="changelog-button">Changelog (v0.3)</a>
 </body>
 </html>
