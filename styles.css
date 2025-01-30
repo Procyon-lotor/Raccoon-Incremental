@@ -415,3 +415,121 @@ body {
 #update-button:active {
   background-color: #efefef; /* Keep the hover color when clicked */
 }
+
+/* Container for the upgrade buttons grid */
+.upgrade-buttons-container {
+  display: grid;
+  grid-template-columns: repeat(10, 60px); /* 10 columns, each 60px wide */
+  grid-template-rows: repeat(10, 60px);    /* 10 rows, each 60px high */
+  gap: 10px; /* Optional: space between buttons */
+  position: fixed;
+  top: 20px; /* Adjust to position from the top of the screen */
+  left: 240px; /* Adjust to compensate for the sidebar taking up 160px */
+  width: calc(100% - 240px); /* Take the full width minus the sidebar */
+  height: calc(100% - 40px); /* Take full height minus the top margin */
+  justify-content: center;
+  align-items: center;
+}
+
+/* Individual upgrade button styling */
+.upgrade-btn {
+  width: 60px;
+  height: 60px;
+  background-color: #6f9fbf; /* Initial button color */
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s ease; /* Smooth hover and click effect */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Hover effect: Change color when hovering */
+.upgrade-btn:hover {
+  background-color: #efefef; /* Change color when hovered */
+}
+
+/* Disabled button styling (after purchase) */
+.upgrade-btn:disabled {
+  background-color: #ccc; /* Grey when disabled */
+  cursor: not-allowed; /* Show 'not-allowed' cursor */
+}
+
+/* Optional: Flash effect when purchase is not possible (insufficient points) */
+.upgrade-btn.flash-red {
+  background-color: red;
+  animation: flashAnimation 0.5s 3; /* Flash red effect */
+}
+
+@keyframes flashAnimation {
+  0% {
+      background-color: red;
+  }
+  50% {
+      background-color: #6f9fbf;
+  }
+  100% {
+      background-color: red;
+  }
+}
+
+.upgrade-buttons-container {
+  margin-top: 100px; /* Adds space between the text and the upgrade buttons container */
+  display: grid;
+  grid-template-columns: repeat(10, 60px); /* 10 buttons per row */
+  gap: 10px; /* Adds space between buttons */
+  width: 690px; /* Set the container width to fit 10 columns of 60px width each with 10px gap */
+  height: 690px; /* Set the container height to fit 10 rows of 60px height each with 10px gap */
+  justify-content: center; /* Centers the buttons horizontally */
+  margin-left: auto; /* Aligns container to the left */
+  margin-right: auto; /* Aligns container to the right */
+  border: 2px solid #efefef; /* Change the border color to #efefef */
+  padding: 0; /* Remove padding to align the button exactly at the top-left corner */
+  transform: translateX(80px); /* Shift the container 80px to the right */
+}
+
+#upgrade-00 {
+  grid-column: 1; /* Position the first button in the top-left corner */
+  grid-row: 1;
+  font-size: 18px; /* Set the font size for text inside the container */
+}
+
+.upgrade-button-wrapper {
+  position: relative;
+}
+
+.upgrade-description {
+  display: none;
+  position: fixed;
+  top: 90px; /* Position it 90px down from the top */
+  left: 50%; /* Center it horizontally */
+  transform: translateX(-50%); /* Offset to center it based on its own width */
+  font-size: 16px; /* Adjust font size */
+  color: #fff;
+  background-color: #1f2f3f;
+  padding: 10px; /* Increase padding for better spacing */
+  border-radius: 4px;
+  text-align: center;
+  width: 600px; /* Increase the width of the description container */
+  z-index: 100; /* Ensure it appears above other elements */
+  line-height: 1.5; /* Increase line spacing */
+}
+
+.upgrade-btn:hover + .upgrade-description {
+  display: block;
+}
+
+.upgrade-btn {
+  border: 2px solid black;
+}
+
+#ppg-display {
+  color: #6f9fbf;
+  font-size: 18px;
+  position: absolute;
+  top: 40px; /* 100px is for the score display's position, adjust if necessary */
+  left: calc(50% + 80px); /* 50% to center and then 80px to the right */
+  transform: translateX(-50%); /* Center horizontally */
+  width: 400px;
+}

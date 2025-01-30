@@ -10,9 +10,9 @@
 <body>
     <div id="points-display">
         <p id="score">Score: 0</p> <!-- Score will dynamically update here -->
+        <p id="ppg-display">Points per second: 1</p>
     </div>
-    <button id="update-button">Update Score</button>
-
+  
     <!-- Tabs and content -->
     <div class="tab-buttons">
         <button id="main-tab-btn" class="tab-button">Main</button>
@@ -23,8 +23,37 @@
     <div id="main-tab-content" style="display: block;">
         <h2>Welcome to the Main Tab!</h2>
         <p>This is the main content of your game.</p>
-    </div>
+        <div class="upgrade-buttons-container">
+            <!-- First upgrade -->
+            <div class="upgrade-button-wrapper">
+                <button id="upgrade-00" class="upgrade-btn" data-cost="10">
+                    00
+                </button>
+                <div class="upgrade-description">
+                    <p class="upgrade-name">The First Upgrade!</p>
+                    <p class="upgrade-description-text">Double your points per second.</p>
+                    <p class="upgrade-cost">Cost: 10 points</p>
+                    <p class="upgrade-effect">Effect: Points 2x</p>
+                </div>
+            </div>
 
+            <!-- Second upgrade -->
+            <div class="upgrade-button-wrapper">
+                <button id="upgrade-01" class="upgrade-btn" data-cost="40">
+                    01
+                </button>
+                <div class="upgrade-description">
+                    <p class="upgrade-name">Stronger with Time</p>
+                    <p class="upgrade-description-text">Multiply your points per second based on your current points.</p>
+                    <p class="upgrade-cost">Cost: 40 points</p>
+                    <p class="upgrade-effect"></p>
+                    <p id="upgrade-01-description" class="upgrade-effect">(Multiplier: <span id="multiplier-value">???</span>)</p>
+    
+                </div>
+            </div>
+        </div>
+    </div>
+  
     <!-- Settings Tab Content (contains the autosave box) -->
     <div id="settings-tab-content" style="display: none;">
         <h2>Settings</h2>
@@ -32,26 +61,26 @@
         
         <!-- Autosave Setting Box -->
         <div id="manual-save-setting" class="setting-box">
-          <label for="manual-save-button">Manual Save:</label>
-          <button id="manual-save-button">Save Now</button>
-          <span id="manual-save-status"></span>
-      </div>
+            <label for="manual-save-button">Manual Save:</label>
+            <button id="manual-save-button">Save Now</button>
+            <span id="manual-save-status"></span>
+        </div>
         <div id="autosave-setting" class="setting-box">
             <label for="autosave-slider">Autosave (how often the game saves by itself):</label>
             <input type="range" id="autosave-slider" min="1" max="4" value="2">
             <span id="autosave-time">10 seconds</span>
         </div>
         <div id="hard-reset-setting" class="setting-box">
-          <button id="hard-reset-button">Hard Reset</button>
-          <p id="hard-reset-status"></p>
-      </div>
-      
+            <button id="hard-reset-button">Hard Reset</button>
+            <p id="hard-reset-status"></p>
+        </div>
     </div>
-
-    <!-- Link to the JavaScript file -->
-    <script src="app.js"></script>
 
     <!-- Changelog Button -->
     <a href="changelog.html" class="changelog-button">Changelog (v0.3)</a>
+
+    <!-- Link to the JavaScript file -->
+    <script src="app.js" defer></script>
+    <!-- <script src="upgrades.js"></script>-->
 </body>
 </html>
