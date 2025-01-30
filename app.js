@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Existing Upgrade Data
     const upgrades = [
         { id: 'upgrade-00', cost: 10, effect: { name: 'First Upgrade', description: 'Double your PPG.', updatePPG: (ppg) => ppg * 2 } },
-        { id: 'upgrade-01', cost: 40, effect: { name: 'Second Upgrade', description: 'Increase PPG by current points^0.2.', updatePPG: (ppg) => ppg * Math.pow(score, 0.2) } }
+        { id: 'upgrade-01', cost: 40, effect: { name: 'Second Upgrade', description: 'Increase PPG by current points^0.2.', updatePPG: (ppg) => ppg * Math.max(Math.pow(score, 0.2), 1) } }
     ];
 
     // Event Listeners
