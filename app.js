@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Elements
     const scoreElement = document.getElementById('score');
     const ppgDisplay = document.getElementById('ppg-display');
-    const upgradeButtonsContainer = document.getElementById('upgrade-buttons-container'); // Ensure this ID is correct
+    const upgradeButtonsContainer = document.getElementById('upgrade-buttons-container');
     const autosaveSlider = document.getElementById('autosave-slider');
     const manualSaveButton = document.getElementById('manual-save-button');
     const manualSaveStatus = document.getElementById('manual-save-status');
@@ -13,12 +13,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const settingsTabContent = document.getElementById('settings-tab-content');
     const mainTabBtn = document.getElementById('main-tab-btn');
     const settingsTabBtn = document.getElementById('settings-tab-btn');
+    const achievementsTabBtn = document.getElementById('achievements-tab-btn');
+    const achievementsTabContent = document.getElementById('achievements-tab-content');
+    const xpText = document.getElementById('achievement-xp-text');
+    const xpFill = document.getElementById('achievement-xp-fill');
+    const achievementTier = document.getElementById('achievement-score-tier');
+    const requirementText = document.getElementById('achievement-score-requirement');
+    const claimButton = document.getElementById('claim-reward-btn');
 
     // State
     let score = loadScore();
-    let passivePointsPerSecond = 1; // Initial PPG should start at 1, not 2
+    let passivePointsPerSecond = 1;
     let autosaveInterval = parseInt(localStorage.getItem('autosaveInterval')) || 10000;
     let autosaveTimeout;
+
+    // Initialize achievement state
+    let achievementXP = parseInt(localStorage.getItem('achievementXP')) || 0;
+    let achievementCompletionTier = parseInt(localStorage.getItem('achievementCompletionTier')) || 0;
+    const scoreThresholds = [100, 200, 300, 400, 500];
 
     // Setup
     mainTabContent.style.display = 'block';
@@ -33,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event Listeners
     mainTabBtn.addEventListener('click', () => toggleTabs('main'));
     settingsTabBtn.addEventListener('click', () => toggleTabs('settings'));
+    achievementsTabBtn.addEventListener('click', () => toggleTabs('achievements'));
     autosaveSlider.addEventListener('input', updateAutosaveTime);
     manualSaveButton?.addEventListener('click', manualSave);
     hardResetButton?.addEventListener('click', hardReset);
@@ -44,11 +57,15 @@ document.addEventListener('DOMContentLoaded', () => {
     loadPurchasedUpgrades();
     applyStoredEffects();
     incrementScore();
+    updateUI();
+    updateScoreAchievement();
+    
 
     // Functions
     function updateDisplays() {
         scoreElement.textContent = `Score: ${Math.round(score)}`;
         ppgDisplay.textContent = `Points per second: ${passivePointsPerSecond.toFixed(2)}`;
+        updateUpgrade01Description();
     }
 
     function saveScore() {
@@ -76,100 +93,68 @@ document.addEventListener('DOMContentLoaded', () => {
                 const button = document.getElementById(upgrade.id);
                 if (button) {
                     button.disabled = true;
-                    button.style.backgroundColor = '#3fff3f'; // Green
+                    button.style.backgroundColor = '#3fbf3f'; // Green
                 }
             }
         });
     }
 
-    // Apply stored effects from previous sessions
     function applyStoredEffects() {
-        // Check if Upgrade 00 was purchased, and apply its effect only once
         const purchasedUpgrades = JSON.parse(localStorage.getItem('purchasedUpgrades')) || [];
         if (purchasedUpgrades.includes('upgrade-00')) {
-            // Apply the multiplier effect for Upgrade 00 after purchase (multiply by 2)
-            passivePointsPerSecond *= 2; // Only apply once after purchase
+            passivePointsPerSecond *= 2; // Apply Upgrade 00 effect
         }
 
-        // Check if Upgrade 01 was purchased, and apply its effect dynamically based on current score
         if (purchasedUpgrades.includes('upgrade-01')) {
-            // Dynamically calculate PPG multiplier for Upgrade 01 based on current score
-            passivePointsPerSecond *= Math.pow(score, 0.2);
+            passivePointsPerSecond *= Math.pow(score, 0.2); // Apply Upgrade 01 effect
         }
     }
 
-    // Function to update PPG based on current score
     function updatePPG() {
-        // Start with the base PPG (1 point per second)
-        let calculatedPPG = 1; 
-
-        // Check if Upgrade 00 is purchased (doubles the PPG)
+        let calculatedPPG = 1;
         const purchasedUpgrades = JSON.parse(localStorage.getItem('purchasedUpgrades')) || [];
         if (purchasedUpgrades.includes('upgrade-00')) {
-            calculatedPPG *= 2;  // Upgrade 00: Double the PPG
+            calculatedPPG *= 2;
         }
-
-        // Check if Upgrade 01 is purchased (multiplies PPG by score^0.2)
         if (purchasedUpgrades.includes('upgrade-01')) {
-            calculatedPPG *= Math.pow(score, 0.2);  // Upgrade 01: Multiply by score^0.2
+            calculatedPPG *= Math.pow(score, 0.2);
         }
-
-        // Set the new passive points per second (PPG)
         passivePointsPerSecond = calculatedPPG;
-
-        // Update the display for PPG
         updateDisplays();
     }
-    
-    // Function to update the multiplier in the description for Upgrade 01
+
     function updateUpgrade01Description() {
-        const multiplierSpan = document.getElementById('multiplier-value');  // Target the <span> with the multiplier
-        if (score > 0) {  // Check if the score is valid and greater than 0
-        const multiplier = Math.pow(score, 0.2);  // Calculate the multiplier based on the current score
-        multiplierSpan.textContent = multiplier.toFixed(2);  // Set the multiplier value dynamically
-                } else {
-                    multiplierSpan.textContent = "N/A";  // If score is not valid, display "N/A"
-                }
-            }
-    
-            // Update the description when the page loads
-            updateUpgrade01Description();
-    
-            // If you need to update it again (e.g., after the score changes), call the function
-            // updateUpgrade01Description(); // You can call this wherever necessary in your code
+        const multiplierElement = document.getElementById('multiplier-value');
+        if (multiplierElement) {
+            let multiplier = Math.max(Math.pow(score, 0.2), 1).toFixed(2);
+            multiplierElement.textContent = `${multiplier}`;
+        }
+    }
+
     function handleUpgradePurchase(upgrade, button) {
         const cost = parseFloat(button.dataset.cost);
         if (score >= cost) {
-            // Deduct cost and update score
             score -= cost;
             saveScore();
-    
-            // Apply upgrade effect (e.g., increase PPG)
             passivePointsPerSecond = upgrade.effect.updatePPG(passivePointsPerSecond);
-    
-            // Save the upgrade status (just store that it was purchased)
+
             let purchasedUpgrades = JSON.parse(localStorage.getItem('purchasedUpgrades')) || [];
             if (!purchasedUpgrades.includes(upgrade.id)) {
                 purchasedUpgrades.push(upgrade.id);
                 localStorage.setItem('purchasedUpgrades', JSON.stringify(purchasedUpgrades));
             }
-    
-            // Save the purchased upgrade in localStorage (no multiplier for Upgrade 01)
+
             if (upgrade.id === 'upgrade-00') {
                 localStorage.setItem('multiplierUpgrade00', '2');
             }
-    
-            // Disable the button and mark it as purchased
+
             button.disabled = true;
-            button.style.backgroundColor = '#3fff3f'; // Green
-    
-            // Update the description with the new multiplier
-            updateUpgradeDescription();
+            button.style.backgroundColor = '#3fbf3f'; // Green
         } else {
             flashButtonRed(button);
         }
         updateDisplays();
-    }    
+    }
 
     function flashButtonRed(button) {
         button.style.backgroundColor = '#ff3f3f';
@@ -179,6 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function toggleTabs(tab) {
         mainTabContent.style.display = tab === 'main' ? 'block' : 'none';
         settingsTabContent.style.display = tab === 'settings' ? 'block' : 'none';
+        achievementsTabContent.style.display = tab === 'achievements' ? 'block' : 'none';
     }
 
     function updateAutosaveTime(event) {
@@ -194,11 +180,10 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Autosave started');
         autosaveTimeout = setInterval(() => {
             saveScore();
-            const currentTime = new Date().toLocaleString();  // Get the current date and time
+            const currentTime = new Date().toLocaleString();
             console.log(`Game autosaved at ${currentTime}`);
         }, autosaveInterval);
-    }    
-    
+    }
 
     function manualSave() {
         saveScore();
@@ -208,21 +193,79 @@ document.addEventListener('DOMContentLoaded', () => {
             manualSaveStatus.textContent = ''; // Hide status after 2 seconds
         }, 2000);
     }
-    
-    
+
     function hardReset() {
         if (confirm('Are you sure you want to reset the game?')) {
             localStorage.clear();
             score = 0;
             passivePointsPerSecond = 1;
+            achievementXP = 0; // Reset achievement XP
+            achievementCompletionTier = 0; // Reset achievement tier
             updateDisplays();
             document.querySelectorAll('.upgrade-btn').forEach(button => {
                 button.disabled = false;
                 button.style.backgroundColor = '';
+            xpText.textContent = `${achievementXP} / 100 XP`;
+            xpFill.style.width = '0%';
+            achievementTier.textContent = `${achievementCompletionTier} / 5`;
+            requirementText.textContent = `$${Math.round(score)} / ${scoreThresholds[achievementCompletionTier - 1] || 500}`;
+        
+            // Reset claim button state
+            claimButton.disabled = true;
             });
         }
     }
 
+    function updateUI() {
+        console.log(`XP Percentage: ${(achievementXP / 100) * 100}%`);
+        xpText.textContent = `${achievementXP} / 100 XP`;
+        xpFill.style.width = `${(achievementXP / 100) * 100}%`; // Dynamically adjust the width based on XP progress
+        achievementTier.textContent = `${achievementCompletionTier} / 5`;
+        
+        const requirement = scoreThresholds[achievementCompletionTier - 1] || 500;
+        requirementText.textContent = `${Math.round(score)} / ${requirement}`;
+        
+        checkClaimReward();
+    }
+    
+    function updateScoreAchievement() {
+        xpText.textContent = `${achievementXP} / 100 XP`;
+        xpFill.style.width = `${(achievementXP / 100) * 100}%`; // Dynamically adjust the width based on XP progress
+        achievementTier.textContent = `${achievementCompletionTier} / 5`; // Display current tier
+        requirementText.textContent = `${Math.round(score)} / ${scoreThresholds[achievementCompletionTier] || 500}`;
+        checkClaimReward();
+    }
+    
+    function checkClaimReward() {
+        console.log(`Achievement XP: ${achievementXP}, Required XP: ${scoreThresholds[achievementCompletionTier - 1]}, Tier: ${achievementCompletionTier}`);
+        
+        if (achievementCompletionTier >= 5) {
+            claimButton.disabled = true; // Disable button at max tier
+        } else if (achievementCompletionTier === 0 && score >= scoreThresholds[0]) {
+            // Enable the button if the first tier is met and completion tier is 0
+            claimButton.disabled = false;
+        } else if (score >= scoreThresholds[achievementCompletionTier]) {
+            claimButton.disabled = false;
+        } else {
+            claimButton.disabled = true;
+        }
+    }
+    
+    function claimReward() {
+        if (achievementCompletionTier < 5) {
+            achievementCompletionTier++; // Increment tier on button click
+            localStorage.setItem('achievementCompletionTier', achievementCompletionTier); // Save to local storage
+            achievementXP += 10; // Award XP
+            localStorage.setItem('achievementXP', achievementXP); // Save XP
+            updateScoreAchievement(); // Update the UI to show new tier
+            updateUI(); // Update the XP bar after XP is awarded
+        }
+    }
+    
+    claimButton.addEventListener('click', claimReward);
+    updateScoreAchievement(); // Ensure it's called on DOM load
+    updateUI(); // Ensure it's called on DOM load
+    
     // Increment score by PPG every second
     function incrementScore() {
         setInterval(() => {
@@ -230,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
             saveScore();
             updateDisplays();
             updatePPG();
-            updateUpgrade01Description();
+            updateScoreAchievement(); // Ensure it’s updated when score changes
         }, 1000);
     }
-});
+});    

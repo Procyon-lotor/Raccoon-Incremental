@@ -16,6 +16,7 @@
     <!-- Tabs and content -->
     <div class="tab-buttons">
         <button id="main-tab-btn" class="tab-button">Main</button>
+        <button id="achievements-tab-btn" class="tab-button">Achievements</button>
         <button id="settings-tab-btn" class="tab-button">Settings</button>
     </div>
 
@@ -76,8 +77,29 @@
         </div>
     </div>
 
+    <div id="achievements-tab-content" class="tab-content">
+      <h2>Achievements</h2>
+      <p id="current-level">Your Achievement Level is 1</p> <!-- Text displaying current level -->
+      <div class="achievement-xp-bar">
+        <div id="achievement-xp-fill"></div>
+        <span id="achievement-xp-text">0 / 100 XP</span> <!-- This will display the current and required XP -->
+      </div>
+    
+      <div id="achievements-list">
+        <!-- Achievements will be dynamically added here -->
+        <div class="achievement-box" id="achievement-score">
+          <h3>Score Master</h3>
+          <p>Reach a certain number of points.</p>
+          <p>Requirement: <span id="achievement-score-requirement">0 / 100</span> points</p>
+          <p>Completion Tier: <span id="achievement-score-tier">0 / 5</span></p>
+          <button id="claim-reward-btn" class="claim-reward-btn" disabled>Claim Reward (+10 XP)</button>
+        </div>
+      </div>
+    </div>
+    
+
     <!-- Changelog Button -->
-    <a href="changelog.html" class="changelog-button">Changelog (v0.4)</a>
+    <a href="changelog.html" class="changelog-button">Changelog (v0.5)</a>
 
     <!-- Link to the JavaScript file -->
     <script src="app.js" defer></script>

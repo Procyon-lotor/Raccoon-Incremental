@@ -533,3 +533,168 @@ body {
   transform: translateX(-50%); /* Center horizontally */
   width: 400px;
 }
+
+#achievements-tab-content {
+  display: none; /* Hidden by default */
+  padding: 20px;
+}
+
+#achievements-list {
+  max-height: 400px; /* Adjust as needed */
+  overflow-y: auto;  /* Enables vertical scrolling */
+  border: 1px solid #1f2f3f;
+  padding: 10px;
+}
+
+.achievement-box {
+  border: 2px solid #1f2f3f;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #1f2f3f;
+}
+
+#achievements-tab-btn {
+  font-size: 18px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #4f4f4f;
+}
+
+#achievements-tab-btn:hover {
+  background-color: #6f6f6f;
+}
+
+/* Achievement box positioning */
+.achievement-box {
+  position: absolute;
+  top: 360px;
+  left: 240px;
+  width: 400px; /* Adjust the width as needed */
+  padding: 10px;
+  background-color: #efefef; /* Change the background as needed */
+  border: 1px solid #1f2f3f;
+  border-radius: 10px;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Achievements header positioning */
+#achievements-tab-content h2 {
+  position: absolute;
+  top: 100px;
+  left: calc(50% + 80px);  /* Moves the text 80px to the right from the center */
+  transform: translateX(-50%);  /* Center the text horizontally */
+  padding: 10px;
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  color: #efefef;
+  font-size: 24px
+}
+
+.achievement-xp-bar {
+  position: fixed;  /* Position it relative to the parent container */
+  top: 200px;  /* Position 225px from the top */
+  left: 50%;  /* Center horizontally */
+  left: calc(50% + 80px);  /* Moves the text 80px to the right from the center */
+  transform: translateX(-50%);  /* Center the text horizontally */
+  width: 400px;  /* Set a fixed width for the XP bar */
+  height: 40px;  /* Height of the bar */
+  background-color: #efefef;  /* Light grey background */
+  border-radius: 10px;  /* Rounded corners for the bar */
+  margin-top: 10px;  /* Space between the achievement content and the XP bar */
+  z-index: 1;
+  border: 2px solid black;
+}
+
+#achievement-xp-fill {
+  height: 100%;  /* Fill the height of the container */
+  width: 0%;  /* Initially empty, will be dynamically adjusted */
+  background-color: #3fbf3f;  /* Green color to represent progress */
+  border-radius: 8px;  /* Same rounded corners as the outer container */
+  transition: width 0.5s ease;  /* Smooth transition for XP filling */
+  z-index: 2;
+}
+
+#achievement-xp-text {
+  position: absolute;
+  top: 50%;  /* Vertically center the text */
+  left: 50%;  /* Horizontally center the text */
+  transform: translate(-50%, -50%);  /* Center the text perfectly */
+  color: black;  /* White text color for contrast */
+  font-size: 18px;
+  font-weight: bold;
+  pointer-events: none;  /* Make the text not interfere with interactions */
+}
+
+/* Positioning the current level text */
+#current-level {
+  position: absolute;
+  top: 175px; /* 200px from the top */
+  left: calc(50% + 80px);  /* Moves the text 80px to the right from the center */
+  transform: translateX(-50%);  /* Center the text horizontally */
+  font-size: 18px;
+  font-weight: bold;
+  color: #efefef; /* You can change the color to suit your design */
+  margin: 0;
+}
+
+.claim-reward-btn {
+  width: 200px;
+  height: 30px;
+  background-color: #4f6f8f; /* Green button color */
+  color: #efefef;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: not-allowed; /* Initially unclickable */
+  margin-top: 10px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  pointer-events: auto;  /* Ensure button can be clicked */
+}
+
+#claim-reward-btn {
+  margin-top: 10px;
+  padding: 8px 15px;
+  background-color: #3fbf3f; /* Green */
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;                /* Use flexbox */
+  justify-content: center;      /* Center text horizontally */
+  align-items: center;          /* Center text vertically */
+  text-align: center;           /* Ensures the text is centered */
+  border: 1px solid black;
+}
+
+.claim-reward-btn.enabled {
+  cursor: pointer;
+  background-color: #3fbf3f; /* Change to blue when clickable */
+  pointer-events: auto;
+}
+
+#claim-reward-btn:disabled {
+  background-color: #ddd; /* Gray when disabled */
+  cursor: not-allowed;
+}
+
+#achievement-xp-container {
+  width: 400px;
+  height: 40px;  /* Ensure the container has height */
+  background-color: #efefef;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.achievement-box {
+  background-color: #6f9fbf;  /* Set box color */
+  text-align: left;  /* Left-align text */
+  border-radius: 5px;  /* Sharp corners */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);  /* Small shadow */
+  box-shadow: 0 0 20px rgba(111, 159, 191, 0.7);  /* Glow effect */
+  border: 2px solid black;
+}
