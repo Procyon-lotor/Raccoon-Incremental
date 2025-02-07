@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const xpFill = document.getElementById('achievement-xp-fill');
     const achievementTier = document.getElementById('achievement-score-tier');
     const requirementText = document.getElementById('achievement-score-requirement');
+    const rewardText = document.getElementById('achievement-score-reward');
     const claimButton = document.getElementById('claim-reward-btn');
 
     // State
@@ -60,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateUI();
     updateScoreAchievement();
     
-
     // Functions
     function updateDisplays() {
         scoreElement.textContent = `Score: ${Math.round(score)}`;
@@ -119,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (purchasedUpgrades.includes('upgrade-01')) {
             calculatedPPG *= Math.pow(score, 0.2);
         }
+        calculatedPPG *= Math.pow(1.5, achievementCompletionTier);
         passivePointsPerSecond = calculatedPPG;
         updateDisplays();
     }
@@ -167,6 +168,30 @@ document.addEventListener('DOMContentLoaded', () => {
         achievementsTabContent.style.display = tab === 'achievements' ? 'block' : 'none';
     }
 
+    function showPopup(message, color = 'yellow') {  // Default to yellow
+        const popupContainer = document.getElementById('popup-container');
+        const popup = document.createElement('div');
+        popup.classList.add('popup-message');
+        popup.textContent = message;
+        
+        // Set the color dynamically based on the parameter
+        popup.style.backgroundColor = color;
+    
+        // Remove popup when clicked
+        popup.addEventListener('click', () => {
+            popup.style.opacity = '0';
+            setTimeout(() => popup.remove(), 300);
+        });
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            popup.style.opacity = '0';
+            setTimeout(() => popup.remove(), 300);
+        }, 5000);
+        
+        popupContainer.appendChild(popup);
+    }
+
     function updateAutosaveTime(event) {
         const times = [5000, 10000, 30000, 60000];
         autosaveInterval = times[event.target.value - 1];
@@ -188,11 +213,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function manualSave() {
         saveScore();
         console.log('Game manually saved');
-        manualSaveStatus.textContent = 'Game saved!';
+        manualSaveStatus.textContent = '';
+        showPopup('Game saved!', '#6f9fbf'); // Pass the color for the manual save pop-up
         setTimeout(() => {
             manualSaveStatus.textContent = ''; // Hide status after 2 seconds
         }, 2000);
     }
+    
 
     function hardReset() {
         if (confirm('Are you sure you want to reset the game?')) {
@@ -233,21 +260,33 @@ document.addEventListener('DOMContentLoaded', () => {
         xpFill.style.width = `${(achievementXP / 100) * 100}%`; // Dynamically adjust the width based on XP progress
         achievementTier.textContent = `${achievementCompletionTier} / 5`; // Display current tier
         requirementText.textContent = `${Math.round(score)} / ${scoreThresholds[achievementCompletionTier] || 500}`;
+        rewardText.textContent = `${Math.pow(1.5, achievementCompletionTier).toFixed(2)}x Points)`;
         checkClaimReward();
     }
-    
+
     function checkClaimReward() {
         console.log(`Achievement XP: ${achievementXP}, Required XP: ${scoreThresholds[achievementCompletionTier - 1]}, Tier: ${achievementCompletionTier}`);
-        
+    
+        // Get the last shown tier from localStorage or default to an empty object
+        let shownTiers = JSON.parse(localStorage.getItem('shownTiers')) || {};
+    
         if (achievementCompletionTier >= 5) {
-            claimButton.disabled = true; // Disable button at max tier
-        } else if (achievementCompletionTier === 0 && score >= scoreThresholds[0]) {
-            // Enable the button if the first tier is met and completion tier is 0
-            claimButton.disabled = false;
-        } else if (score >= scoreThresholds[achievementCompletionTier]) {
-            claimButton.disabled = false;
-        } else {
             claimButton.disabled = true;
+        } else {
+            if (score >= scoreThresholds[achievementCompletionTier]) {
+                claimButton.disabled = false;
+    
+                // Check if the pop-up has been shown for this tier
+                if (!shownTiers[achievementCompletionTier]) {
+                    showPopup(`Achievement Completed! Score Master: Tier ${achievementCompletionTier + 1}`);
+                    // Mark the pop-up as shown for this tier
+                    shownTiers[achievementCompletionTier] = true;
+                    // Save the updated state to localStorage
+                    localStorage.setItem('shownTiers', JSON.stringify(shownTiers));
+                }
+            } else {
+                claimButton.disabled = true;
+            }
         }
     }
     

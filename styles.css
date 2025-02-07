@@ -571,7 +571,7 @@ body {
   position: absolute;
   top: 360px;
   left: 240px;
-  width: 400px; /* Adjust the width as needed */
+  width: 440px; /* Adjust the width as needed */
   padding: 10px;
   background-color: #efefef; /* Change the background as needed */
   border: 1px solid #1f2f3f;
@@ -697,4 +697,30 @@ body {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);  /* Small shadow */
   box-shadow: 0 0 20px rgba(111, 159, 191, 0.7);  /* Glow effect */
   border: 2px solid black;
+}
+
+#popup-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.popup-message {
+    background-color: yellow;
+    color: black;
+    padding: 10px 15px;
+    border: 2px solid black;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.popup-message:hover {
+    opacity: 0.8;
 }
