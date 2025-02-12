@@ -724,3 +724,8 @@ body {
 .popup-message:hover {
     opacity: 0.8;
 }
+
+.upgrade-name {
+    font-size: 20px; /* Adjust this value as needed */
+    font-weight: bold;
+}

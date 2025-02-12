@@ -38,9 +38,12 @@ document.addEventListener('DOMContentLoaded', () => {
     settingsTabContent.style.display = 'none';
 
     // Existing Upgrade Data
+    let numUpgrades = parseInt(localStorage.getItem('numUpgrades')) || 0;
     const upgrades = [
         { id: 'upgrade-00', cost: 10, effect: { name: 'First Upgrade', description: 'Double your PPG.', updatePPG: (ppg) => ppg * 2 } },
-        { id: 'upgrade-01', cost: 40, effect: { name: 'Second Upgrade', description: 'Increase PPG by current points^0.2.', updatePPG: (ppg) => ppg * Math.max(Math.pow(score, 0.2), 1) } }
+        { id: 'upgrade-01', cost: 40, effect: { name: 'Second Upgrade', description: 'Increase PPG by current points^0.2.', updatePPG: (ppg) => ppg * Math.max(Math.pow(score, 0.2), 1) } },
+        { id: 'upgrade-02', cost: 300, effect: { name: 'Third Upgrade', description: 'Increase PPG based on number of upgrades purchased in this row.', updatePPG: (ppg) => ppg * Math.pow(numUpgrades, 0.5) + 1}},
+        { id: 'upgrade-03', cost: 1000, effect: { name: 'Fourth Upgrade', description: 'Increase PPG based on total achievement completion tiers.', updatePPG: (ppg) => ppg * Math.pow(1.2, achievementCompletionTier)}}
     ];
 
     // Event Listeners
@@ -66,6 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
         scoreElement.textContent = `Score: ${Math.round(score)}`;
         ppgDisplay.textContent = `Points per second: ${passivePointsPerSecond.toFixed(2)}`;
         updateUpgrade01Description();
+        updateUpgrade02Description();
+        updateUpgrade03Description();
     }
 
     function saveScore() {
@@ -108,6 +113,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (purchasedUpgrades.includes('upgrade-01')) {
             passivePointsPerSecond *= Math.pow(score, 0.2); // Apply Upgrade 01 effect
         }
+
+        if (purchasedUpgrades.includes('upgrade-02')) {
+            passivePointsPerSecond *= Math.pow(numUpgrades, 0.5) + 1;
+        }
+
+        if (purchasedUpgrades.includes('upgrade-03')) {
+            passivePointsPerSecond *= Math.pow(1.2, achievementCompletionTier);
+        }
     }
 
     function updatePPG() {
@@ -118,6 +131,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (purchasedUpgrades.includes('upgrade-01')) {
             calculatedPPG *= Math.pow(score, 0.2);
+        }
+        if (purchasedUpgrades.includes('upgrade-02')) {
+            calculatedPPG *= Math.pow(numUpgrades, 0.5) + 1;
+        }
+        if (purchasedUpgrades.includes('upgrade-03')) {
+            calculatedPPG *= Math.pow(1.2, achievementCompletionTier);
         }
         calculatedPPG *= Math.pow(1.5, achievementCompletionTier);
         passivePointsPerSecond = calculatedPPG;
@@ -132,12 +151,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function updateUpgrade02Description() {
+        const multiplierElement02 = document.getElementById('multiplier-value-02');
+        if (multiplierElement02) {
+            let multiplier02 = (Math.pow(numUpgrades, 0.5) + 1).toFixed(2);
+            multiplierElement02.textContent = `${multiplier02}`;
+        }
+    }
+
+    function updateUpgrade03Description() {
+        const multiplierElement03 = document.getElementById('multiplier-value-03');
+        if (multiplierElement03) {
+            let multiplier03 = (Math.pow(1.2, achievementCompletionTier)).toFixed(2);
+            multiplierElement03.textContent = `${multiplier03}`;
+        }
+    }
     function handleUpgradePurchase(upgrade, button) {
         const cost = parseFloat(button.dataset.cost);
         if (score >= cost) {
             score -= cost;
             saveScore();
             passivePointsPerSecond = upgrade.effect.updatePPG(passivePointsPerSecond);
+            numUpgrades = (parseInt(localStorage.getItem('numUpgrades')) || 0) + 1;
+            localStorage.setItem('numUpgrades', numUpgrades);
 
             let purchasedUpgrades = JSON.parse(localStorage.getItem('purchasedUpgrades')) || [];
             if (!purchasedUpgrades.includes(upgrade.id)) {
@@ -236,6 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
             xpFill.style.width = '0%';
             achievementTier.textContent = `${achievementCompletionTier} / 5`;
             requirementText.textContent = `$${Math.round(score)} / ${scoreThresholds[achievementCompletionTier - 1] || 500}`;
+            numUpgrades = 0;
         
             // Reset claim button state
             claimButton.disabled = true;
