@@ -475,7 +475,7 @@ body {
 }
 
 .upgrade-buttons-container {
-  margin-top: 100px; /* Adds space between the text and the upgrade buttons container */
+  margin-top: 150px; /* Adds space between the text and the upgrade buttons container */
   display: grid;
   grid-template-columns: repeat(10, 60px); /* 10 buttons per row */
   gap: 10px; /* Adds space between buttons */
@@ -728,4 +728,126 @@ body {
 .upgrade-name {
     font-size: 20px; /* Adjust this value as needed */
     font-weight: bold;
+}
+
+#main-subtabs {
+  margin-top: 33px; /* Adds space between the main content text and the subtab buttons */
+  margin-bottom: 10px; /* Adds space between the buttons and the subtab content */
+}
+
+.subtab-button {
+  padding: 8px;
+  margin: 5px;
+  cursor: pointer;
+  border: none;
+  background-color:#6f9fbf;
+  font-size: 14px;
+  border: 2px solid black;
+}
+
+.subtab-button:hover {
+  background-color: #efefef;
+}
+
+.subtab-content {
+  display: none;
+  margin-top: 10px;
+}
+
+.subtab-content.active {
+  display: block;
+}
+
+.fish-info-container {
+  display: flex;
+  justify-content: center; /* Center columns horizontally */
+  gap: 10px; /* Reduce space between columns */
+  margin-top: 50px;
+  max-width: 800px; /* Limit width to prevent excessive stretching */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.fish-column {
+  flex: 1; /* Ensure equal width */
+  text-align: center;
+  background: #4f6f8f;
+  padding: 5px 10px; /* Reduce padding inside */
+  border-radius: 6px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.fish-column h3 {
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.fish-column ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0; /* Remove extra margin */
+  font-size: 14px;
+}
+
+.locked-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border-radius: 4px;
+  z-index: 1; /* Ensure the locked bar is above the text */
+}
+
+.fish-list-item {
+  position: relative;
+  padding: 5px;
+  margin: 5px 0;
+}
+
+.fishing-header {
+  margin-bottom: 0px;  /* Adds space below the fishing header */
+  padding: 10px 0;      /* Adds space inside the fishing header */
+  text-align: center;   /* Centers the header text */
+}
+
+.fishing-description {
+  margin-top: 0px;     /* Adds space above the description text */
+  padding-bottom: 15px; /* Adds space below the description text */
+  text-align: center;   /* Centers the description text */
+}
+
+#fish-result {
+  margin-top: 0px;     /* Adds space above the description text */
+  padding-bottom: 25px; /* Adds space below the description text */
+  text-align: center;   /* Centers the description text */
+}
+
+#fish-button {
+  border: 2px solid black;  /* 2px black border */
+  background-color: #6f9fbf;  /* Default background color */
+  box-shadow: none;  /* No glow initially */
+  transition: box-shadow 0.3s ease, background-color 0.3s ease;  /* Smooth transition for glow and background color */
+}
+
+#fish-button:disabled {
+  opacity: 0.5;  /* Fade button when it's disabled */
+  background-color: #4f6f8f;  /* Button color when disabled */
+  box-shadow: none;  /* No glow when disabled */
+}
+
+#fish-button:not(:disabled):hover {
+  background-color: #efefef;  /* Change background color on hover */
+  cursor: pointer;  /* Show pointer cursor when hoverable */
+}
+
+#fish-button:not(:disabled) {
+  box-shadow: 0 0 10px 2px #6f9fbf;  /* Green glow when ready */
 }

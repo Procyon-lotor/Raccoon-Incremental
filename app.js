@@ -139,9 +139,16 @@ document.addEventListener('DOMContentLoaded', () => {
             calculatedPPG *= Math.pow(1.2, achievementCompletionTier);
         }
         calculatedPPG *= Math.pow(1.5, achievementCompletionTier);
+    
+        // Get the total multiplier from the fish types
+        const fishMultiplier = calculateMultipliers();  // This is now a single value
+    
+        // Apply the fish multiplier
+        calculatedPPG *= fishMultiplier;
+    
         passivePointsPerSecond = calculatedPPG;
         updateDisplays();
-    }
+    }    
 
     function updateUpgrade01Description() {
         const multiplierElement = document.getElementById('multiplier-value');
@@ -204,6 +211,17 @@ document.addEventListener('DOMContentLoaded', () => {
         achievementsTabContent.style.display = tab === 'achievements' ? 'block' : 'none';
     }
 
+    function showSubtab(subtabId) {
+        // Hide all subtabs
+        document.querySelectorAll('.subtab-content').forEach(subtab => {
+            subtab.style.display = 'none';
+        });
+    
+        // Show the selected subtab
+        document.getElementById(subtabId + '-subtab').style.display = 'block';
+    }    
+    window.showSubtab = showSubtab;
+
     function showPopup(message, color = 'yellow') {  // Default to yellow
         const popupContainer = document.getElementById('popup-container');
         const popup = document.createElement('div');
@@ -265,9 +283,13 @@ document.addEventListener('DOMContentLoaded', () => {
             achievementXP = 0; // Reset achievement XP
             achievementCompletionTier = 0; // Reset achievement tier
             updateDisplays();
+            
+            // Reset upgrades
             document.querySelectorAll('.upgrade-btn').forEach(button => {
                 button.disabled = false;
                 button.style.backgroundColor = '';
+            });
+    
             xpText.textContent = `${achievementXP} / 100 XP`;
             xpFill.style.width = '0%';
             achievementTier.textContent = `${achievementCompletionTier} / 5`;
@@ -276,9 +298,17 @@ document.addEventListener('DOMContentLoaded', () => {
         
             // Reset claim button state
             claimButton.disabled = true;
-            });
+    
+            // Reset fish-related data to initial state
+            fishCounts = [0, 0, 0, 0, 0]; // Starting counts for all fish
+            fishProbabilities = [1, 0, 0, 0, 0]; // Starting probabilities (only red fish available)
+            fishingTimer = 0; // Reset the fishing cooldown timer
+    
+            // Update the UI to reflect the reset state
+            updateFishLists();
         }
     }
+    
 
     function updateUI() {
         console.log(`XP Percentage: ${(achievementXP / 100) * 100}%`);
@@ -341,6 +371,204 @@ document.addEventListener('DOMContentLoaded', () => {
     claimButton.addEventListener('click', claimReward);
     updateScoreAchievement(); // Ensure it's called on DOM load
     updateUI(); // Ensure it's called on DOM load
+
+    // Define fish types
+    const fishTypes = [
+        { name: "Red Snapper", multiplier: 0.1 },
+        { name: "Orange Tang", multiplier: 0.2 },
+        { name: "Yellow Perch", multiplier: 0.3 },
+        { name: "Green Bass", multiplier: 0.5 },
+        { name: "Blue Drop", multiplier: 1.0 }
+    ];
+
+    // Initial probabilities (only red fish is available)
+    let fishProbabilities = [1, 0, 0, 0, 0];
+
+    // Player's fish counts
+    let fishCounts = [0, 0, 0, 0, 0];
+
+    // Calculate fish multipliers (each fish's count * its multiplier)
+    function calculateMultipliers() {
+        let totalMultiplier = 1; // Start with a base multiplier of 1 (no multiplier initially)
+
+        // Calculate the multiplier for each fish type
+        fishCounts.forEach((count, index) => {
+        if (count > 0) {
+            // Only multiply if there are fish of that type
+            totalMultiplier *= (1 + (count * fishTypes[index].multiplier));
+        }
+    });
+    return totalMultiplier;
+}
+
+function catchFish() {
+    // Choose a fish based on probabilities
+    let random = Math.random();
+    let cumulative = 0;
+    let chosenFishIndex = 0;
+
+    for (let i = 0; i < fishProbabilities.length; i++) {
+        cumulative += fishProbabilities[i];
+        if (random < cumulative) {
+            chosenFishIndex = i;
+            break;
+        }
+    }
+
+    let chosenFish = fishTypes[chosenFishIndex];
+    
+    // Update fish count
+    fishCounts[chosenFishIndex]++;
+    saveFishData(); // Save the updated fish data
+
+    // Get the color of the fish based on its type
+    const fishColors = ["#FF3F3F", "#FF9F3F", "#FFFF3F", "#3FFF3F", "#3FBFFF"];
+    const fishColor = fishColors[chosenFishIndex]; // Get color based on chosen fish type
+
+    // Display result with colored fish name
+    const fishResultText = `You caught a <span style="color: ${fishColor};">${chosenFish.name}</span>! It provides a +${chosenFish.multiplier}x multiplier to point gain.`;
+    document.getElementById("fish-result").innerHTML = fishResultText;
+
+    // Update fish multipliers and PPG
+    updateFishLists();
+    updatePPG();
+
+    // Disable button for 30 seconds
+    let fishButton = document.getElementById("fish-button");
+    fishButton.disabled = true;
+    fishButton.textContent = "No fish yet... (30s)";
+
+    let timeLeft = 30;
+    let timer = setInterval(() => {
+        timeLeft--;
+        fishButton.textContent = `No fish yet... (${timeLeft}s)`;
+
+        // Save the timer state to localStorage every second
+        localStorage.setItem('fishTimerState', JSON.stringify({ timeLeft: timeLeft, isDisabled: true }));
+
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            fishButton.disabled = false;
+            fishButton.textContent = "Catch Fish! 🐟";
+
+            // Reset the timer state once it's finished
+            localStorage.setItem('fishTimerState', JSON.stringify({ timeLeft: 0, isDisabled: false }));
+        }
+    }, 1000);
+
+    // Save the initial state
+    localStorage.setItem('fishTimerState', JSON.stringify({ timeLeft: timeLeft, isDisabled: true }));
+}
+    
+    window.catchFish = catchFish;
+
+    function updateFishLists() {
+        let countsList = document.getElementById("fish-counts-list");
+        let multipliersList = document.getElementById("fish-multipliers-list");
+        let raritiesList = document.getElementById("fish-rarities-list");
+    
+        countsList.innerHTML = "";
+        multipliersList.innerHTML = "";
+        raritiesList.innerHTML = "";
+    
+        // Define colors for each fish type
+        const fishColors = ["#FF3F3F", "#FF9F3F", "#FFFF3F", "#3FFF3F", "#3FBFFF"]; // Red, Orange, Yellow, Green, Blue
+    
+        fishTypes.forEach((fish, index) => {
+            // Check if the fish is locked (probability is 0)
+            let locked = fishProbabilities[index] === 0;
+            
+            // Fish count
+            let countItem = document.createElement("li");
+            countItem.classList.add("fish-list-item");
+            if (locked) {
+                countItem.innerHTML = `<div class="locked-bar">Locked</div>${fish.name}: ${fishCounts[index]}`;
+            } else {
+                countItem.innerHTML = `${fish.name}: ${fishCounts[index]}`;
+            }
+            countItem.style.color = fishColors[index]; // Set color based on fish type
+            countsList.appendChild(countItem);
+    
+            // Multiplier
+            let multiplierItem = document.createElement("li");
+            multiplierItem.classList.add("fish-list-item");
+            let totalMultiplier = 1 + (fishCounts[index] * fish.multiplier);
+            if (locked) {
+                multiplierItem.innerHTML = `<div class="locked-bar">Locked</div>${fish.name}: ${totalMultiplier.toFixed(2)}x`;
+            } else {
+                multiplierItem.innerHTML = `${fish.name}: ${totalMultiplier.toFixed(2)}x`;
+            }
+            multiplierItem.style.color = fishColors[index]; // Set color based on fish type
+            multipliersList.appendChild(multiplierItem);
+    
+            // Rarity
+            let rarityItem = document.createElement("li");
+            rarityItem.classList.add("fish-list-item");
+            let percentage = (fishProbabilities[index] * 100).toFixed(2);
+            if (locked) {
+                rarityItem.innerHTML = `<div class="locked-bar">Locked</div>${fish.name}: ${percentage}% chance`;
+            } else {
+                rarityItem.innerHTML = `${fish.name}: ${percentage}% chance`;
+            }
+            rarityItem.style.color = fishColors[index]; // Set color based on fish type
+            raritiesList.appendChild(rarityItem);
+        });
+    }
+    
+    // Call update function initially to populate lists
+    updateFishLists();
+    
+// Save fish data to localStorage whenever the fish count is updated
+function saveFishData() {
+    const fishData = {
+        fishCounts: fishCounts,
+        fishProbabilities: fishProbabilities // Save probabilities too, in case they're updated
+    };
+    localStorage.setItem('fishData', JSON.stringify(fishData));
+}
+
+
+// Load fish data from localStorage on page load
+function loadFishData() {
+    const savedFishData = JSON.parse(localStorage.getItem('fishData'));
+    if (savedFishData) {
+        fishCounts = savedFishData.fishCounts || [0, 0, 0, 0, 0]; // Default to 0 if no data exists
+        fishProbabilities = savedFishData.fishProbabilities || [1, 0, 0, 0, 0]; // Default probabilities (Red fish only)
+        updateFishLists();  // Update fish count, multipliers, and rarities lists
+    }
+}
+    
+    // Call loadFishData on page load
+    window.onload = function() {
+        // Load fish data
+        loadFishData();
+    
+        // Restore the timer state if it exists
+        const timerState = JSON.parse(localStorage.getItem('fishTimerState'));
+    
+        if (timerState && timerState.isDisabled) {
+            let fishButton = document.getElementById("fish-button");
+            fishButton.disabled = true;
+            let timeLeft = timerState.timeLeft;
+            fishButton.textContent = `No fish yet... (${timeLeft}s)`;
+    
+            let timer = setInterval(() => {
+                timeLeft--;
+                fishButton.textContent = `No fish yet... (${timeLeft}s)`;
+    
+                // Update the timer state as it counts down
+                localStorage.setItem('fishTimerState', JSON.stringify({ timeLeft: timeLeft, isDisabled: true }));
+    
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    fishButton.disabled = false;
+                    fishButton.textContent = "Catch Fish! 🐟";
+                    localStorage.setItem('fishTimerState', JSON.stringify({ timeLeft: 0, isDisabled: false }));
+                }
+            }, 1000);
+        }
+    };
+    
     
     // Increment score by PPG every second
     function incrementScore() {

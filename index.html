@@ -20,68 +20,96 @@
         <button id="settings-tab-btn" class="tab-button">Settings</button>
     </div>
 
-    <!-- Main Tab Content -->
-    <div id="main-tab-content" style="display: block;">
-        <h2>Welcome to the Main Tab!</h2>
-        <p>This is the main content of your game.</p>
+<!-- Main Tab Content -->
+<div id="main-tab-content" style="display: block;">
+    <h2>Welcome to the Main Tab!</h2>
+    <p>This is the main content of your game.</p>
+    
+    <!-- Subtab Buttons -->
+    <div id="main-subtabs">
+        <button class="subtab-button" onclick="showSubtab('upgrades')">Upgrades</button>
+        <button class="subtab-button" onclick="showSubtab('fishing')">Fishing</button>
+    </div>
+
+    <!-- Upgrades Subtab -->
+    <div id="upgrades-subtab" class="subtab-content" style="display: block;">
         <div class="upgrade-buttons-container">
             <!-- First upgrade -->
             <div class="upgrade-button-wrapper">
-                <button id="upgrade-00" class="upgrade-btn" data-cost="10">
-                    00
-                </button>
+                <button id="upgrade-00" class="upgrade-btn" data-cost="10">00</button>
                 <div class="upgrade-description">
                     <p class="upgrade-name">The First Upgrade!</p>
                     <p class="upgrade-description-text">Double your points per second.</p>
                     <p class="upgrade-cost">Cost: 10 points</p>
                     <p class="upgrade-effect">Effect: Points 2x</p>
                 </div>
-            </div>
+            </div>    
 
             <!-- Second upgrade -->
             <div class="upgrade-button-wrapper">
-                <button id="upgrade-01" class="upgrade-btn" data-cost="40">
-                    01
-                </button>
+                <button id="upgrade-01" class="upgrade-btn" data-cost="40">01</button>
                 <div class="upgrade-description">
                     <p class="upgrade-name">Stronger with Time</p>
                     <p class="upgrade-description-text">Multiply your points per second based on your current points.</p>
                     <p class="upgrade-cost">Cost: 40 points</p>
-                    <p class="upgrade-effect"></p>
                     <p id="upgrade-01-description" class="upgrade-effect">Effect: Points <span id="multiplier-value">???</span>x</p>
                 </div>
             </div>        
+
             <!-- Third upgrade -->
             <div class="upgrade-button-wrapper">
-                <button id="upgrade-02" class="upgrade-btn" data-cost="300">
-                    02
-                </button>
+                <button id="upgrade-02" class="upgrade-btn" data-cost="300">02</button>
                 <div class="upgrade-description">
                     <p class="upgrade-name">Isn't there already an effect?</p>
                     <p class="upgrade-description-text">Multiply your points per second based on the number of purchased upgrades in this row.</p>
                     <p class="upgrade-cost">Cost: 300 points</p>
-                    <p class="upgrade-effect"></p>
                     <p id="upgrade-02-description" class="upgrade-effect">Effect: Points <span id="multiplier-value-02">???</span>x</p>
                 </div>
             </div>
+
             <!-- Fourth upgrade -->
             <div class="upgrade-button-wrapper">
-                <button id="upgrade-03" class="upgrade-btn" data-cost="1000">
-                    03
-                </button>
+                <button id="upgrade-03" class="upgrade-btn" data-cost="1000">03</button>
                 <div class="upgrade-description">
                     <p class="upgrade-name">Trophy Collector</p>
                     <p class="upgrade-description-text">Multiply your points per second based on your total achievement completion tiers.</p>
                     <p class="upgrade-cost">Cost: 1000 points</p>
-                    <p class="upgrade-effect"></p>
-                    <p id="upgrade-02-description" class="upgrade-effect">Effect: Points <span id="multiplier-value-03">???</span>x</p>
+                    <p id="upgrade-03-description" class="upgrade-effect">Effect: Points <span id="multiplier-value-03">???</span>x</p>
                 </div>
             </div>
+        </div> <!-- End of .upgrade-buttons-container -->
+    </div> <!-- End of #upgrades-subtab -->
+
+    <!-- Future Feature Subtab -->
+<!-- Fishing Subtab -->
+<!-- Fishing Subtab -->
+<div id="fishing-subtab" class="subtab-content" style="display: none;">
+    <h2 class="fishing-header">Fishing</h2>
+    <p>Because your raccoons need to eat something, right?</p>
+    <p class="fishing-description">Click the button below to catch a fish! Fish provide different multipliers to your point gain.</p>
+    <h3 id="fish-result" style="margin-top: 10px;"></h3>
+    <button id="fish-button" onclick="catchFish()">Catch Fish! 🐟</button>
     
-                </div>
-            </div>
+    <div class="fish-info-container">
+        <div class="fish-column">
+            <h3>Your Fish Collection</h3>
+            <ul id="fish-counts-list"></ul>
+        </div>
+
+        <div class="fish-column">
+            <h3>Fish Multipliers</h3>
+            <ul id="fish-multipliers-list"></ul>
+        </div>
+
+        <div class="fish-column">
+            <h3>Fish Rarities</h3>
+            <ul id="fish-rarities-list"></ul>
         </div>
     </div>
+</div>
+
+</div> <!-- End of #main-tab-content -->
+
   
     <!-- Settings Tab Content (contains the autosave box) -->
     <div id="settings-tab-content" style="display: none;">
@@ -131,7 +159,7 @@
     
 
     <!-- Changelog Button -->
-    <a href="changelog.html" class="changelog-button">Changelog (v0.7)</a>
+    <a href="changelog.html" class="changelog-button">Changelog (v0.8)</a>
 
     <!-- Link to the JavaScript file -->
     <script src="app.js" defer></script>
