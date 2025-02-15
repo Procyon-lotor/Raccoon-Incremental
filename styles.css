@@ -570,7 +570,7 @@ body {
 .achievement-box {
   position: absolute;
   top: 360px;
-  left: 240px;
+  left: 275px;
   width: 440px; /* Adjust the width as needed */
   padding: 10px;
   background-color: #efefef; /* Change the background as needed */
@@ -755,7 +755,7 @@ body {
 }
 
 .subtab-content.active {
-  display: block;
+  display: none;
 }
 
 .fish-info-container {
@@ -850,4 +850,65 @@ body {
 
 #fish-button:not(:disabled) {
   box-shadow: 0 0 10px 2px #6f9fbf;  /* Green glow when ready */
+}
+
+#achievements-list {
+  display: flex;
+  gap: 20px; /* Space between achievements */
+  flex-wrap: wrap; /* Ensures wrapping on smaller screens */
+}
+
+.achievement-box {
+  width: 450px; /* Adjust width as needed */
+  padding: 15px;
+}
+
+#achievement-fishing {
+  margin-left: 500px; /* Space from the first achievement */
+}
+
+.claim-reward-btn {
+  width: 200px;
+  height: 30px;
+  background-color: #4f6f8f; /* Green button color */
+  color: #efefef;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: not-allowed; /* Initially unclickable */
+  margin-top: 10px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  pointer-events: auto;  /* Ensure button can be clicked */
+}
+
+#claim-fishing-reward-btn {
+  margin-top: 10px;
+  padding: 8px 15px;
+  background-color: #3fbf3f; /* Green */
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;                /* Use flexbox */
+  justify-content: center;      /* Center text horizontally */
+  align-items: center;          /* Center text vertically */
+  text-align: center;           /* Ensures the text is centered */
+  border: 1px solid black;
+}
+
+.claim-fishing-reward-btn.enabled {
+  cursor: pointer;
+  background-color: #3fbf3f; /* Change to blue when clickable */
+  pointer-events: auto;
+}
+
+#claim-fishing-reward-btn:disabled {
+  background-color: #ddd; /* Gray when disabled */
+  cursor: not-allowed;
+}
+
+#total-fish-multiplier {
+  margin-top: 30px;
 }

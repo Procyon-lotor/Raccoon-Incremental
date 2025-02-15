@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let achievementXP = parseInt(localStorage.getItem('achievementXP')) || 0;
     let achievementCompletionTier = parseInt(localStorage.getItem('achievementCompletionTier')) || 0;
     const scoreThresholds = [100, 200, 300, 400, 500];
+    let fishingAchievementElement = document.getElementById('achievement-fishing');
 
     // Setup
     mainTabContent.style.display = 'block';
@@ -43,7 +44,9 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'upgrade-00', cost: 10, effect: { name: 'First Upgrade', description: 'Double your PPG.', updatePPG: (ppg) => ppg * 2 } },
         { id: 'upgrade-01', cost: 40, effect: { name: 'Second Upgrade', description: 'Increase PPG by current points^0.2.', updatePPG: (ppg) => ppg * Math.max(Math.pow(score, 0.2), 1) } },
         { id: 'upgrade-02', cost: 300, effect: { name: 'Third Upgrade', description: 'Increase PPG based on number of upgrades purchased in this row.', updatePPG: (ppg) => ppg * Math.pow(numUpgrades, 0.5) + 1}},
-        { id: 'upgrade-03', cost: 1000, effect: { name: 'Fourth Upgrade', description: 'Increase PPG based on total achievement completion tiers.', updatePPG: (ppg) => ppg * Math.pow(1.2, achievementCompletionTier)}}
+        { id: 'upgrade-03', cost: 1000, effect: { name: 'Fourth Upgrade', description: 'Increase PPG based on total achievement completion tiers.', updatePPG: (ppg) => ppg * Math.pow(1.2, achievementCompletionTier + fishingAchievementTier)}},
+        { id: 'upgrade-04', cost: 2000, effect: { name: 'Fifth Upgrade', description: 'Unlocks Fishing.', unlockFishing: true }
+        }
     ];
 
     // Event Listeners
@@ -53,6 +56,56 @@ document.addEventListener('DOMContentLoaded', () => {
     autosaveSlider.addEventListener('input', updateAutosaveTime);
     manualSaveButton?.addEventListener('click', manualSave);
     hardResetButton?.addEventListener('click', hardReset);
+    
+// Function to show the selected subtab
+function showSubtab(subtabName) {
+    // Get all subtab content elements
+    var subtabs = document.querySelectorAll('.subtab-content');
+    
+    // Hide all subtabs
+    for (var i = 0; i < subtabs.length; i++) {
+        subtabs[i].style.display = 'none';
+    }
+
+    // Show the selected subtab
+    var selectedSubtab = document.getElementById(subtabName + '-subtab');
+    if (selectedSubtab) {
+        selectedSubtab.style.display = 'block';
+    }
+
+    // Handle the Fishing tab visibility (only show if unlocked)
+    var fishingUnlocked = localStorage.getItem("fishingUnlocked");
+    if (fishingUnlocked !== "true" && subtabName === "fishing") {
+        // If fishing is not unlocked, hide the fishing subtab and do not show it
+        document.getElementById("fishing-subtab").style.display = "none";
+    }
+}
+
+// Initialize default subtab visibility on page load
+window.addEventListener('load', function() {
+    // Hide all subtabs initially
+    var subtabs = document.querySelectorAll('.subtab-content');
+    for (var i = 0; i < subtabs.length; i++) {
+        subtabs[i].style.display = 'none';
+    }
+
+    // Show the default subtab (Upgrades) after page refresh
+    document.getElementById("upgrades-subtab").style.display = 'block';
+});
+
+// Update fishing achievement immediately after page loads
+window.addEventListener('DOMContentLoaded', () => {
+    // Load any required saved data from localStorage
+    fishingAchievementTier = Number(localStorage.getItem('fishingAchievementTier')) || 0;
+    fishCounts = JSON.parse(localStorage.getItem('fishCounts')) || [0, 0, 0, 0, 0]; // Or initialize to your default counts
+    fishCatchRequirements = [10, 10, 10, 10, 10]; // or whatever your catch requirements are
+
+    // Make sure the display is updated on page load
+    updateFishingAchievement();
+    claimFishingReward();
+    updateFishLists();
+    updateTotalFishMultiplier()
+});
 
     // Initial Setup
     updateDisplays();
@@ -63,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
     incrementScore();
     updateUI();
     updateScoreAchievement();
-    
+
     // Functions
     function updateDisplays() {
         scoreElement.textContent = `Score: ${Math.round(score)}`;
@@ -105,23 +158,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function applyStoredEffects() {
+        let fishingAchievementTier = parseInt(localStorage.getItem('fishingAchievementTier')) || 0;
         const purchasedUpgrades = JSON.parse(localStorage.getItem('purchasedUpgrades')) || [];
+        
+        // Apply upgrade effects
         if (purchasedUpgrades.includes('upgrade-00')) {
             passivePointsPerSecond *= 2; // Apply Upgrade 00 effect
         }
-
+        
         if (purchasedUpgrades.includes('upgrade-01')) {
             passivePointsPerSecond *= Math.pow(score, 0.2); // Apply Upgrade 01 effect
         }
-
+        
         if (purchasedUpgrades.includes('upgrade-02')) {
             passivePointsPerSecond *= Math.pow(numUpgrades, 0.5) + 1;
         }
-
+        
         if (purchasedUpgrades.includes('upgrade-03')) {
-            passivePointsPerSecond *= Math.pow(1.2, achievementCompletionTier);
+            passivePointsPerSecond *= Math.pow(1.2, achievementCompletionTier + fishingAchievementTier);
         }
-    }
+        
+        // Check if Fishing should be unlocked based on localStorage
+        const fishingSubtab = document.getElementById('fishing-subtab');
+        const fishingAchievementElement = document.getElementById('achievement-fishing');
+        if (localStorage.getItem('fishingUnlocked') === 'true') {
+            fishingSubtab.style.display = 'block';  // Show Fishing subtab
+        } else {
+            fishingSubtab.style.display = 'none';  // Hide Fishing subtab
+        }
+        
+        if (localStorage.getItem('fishingUnlocked') === 'true') {
+            fishingAchievementElement.style.display = 'block';
+        } else {
+            fishingAchievementElement.style.display = 'none';
+        }
+    }    
 
     function updatePPG() {
         let calculatedPPG = 1;
@@ -136,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
             calculatedPPG *= Math.pow(numUpgrades, 0.5) + 1;
         }
         if (purchasedUpgrades.includes('upgrade-03')) {
-            calculatedPPG *= Math.pow(1.2, achievementCompletionTier);
+            calculatedPPG *= Math.pow(1.2, achievementCompletionTier + fishingAchievementTier);
         }
         calculatedPPG *= Math.pow(1.5, achievementCompletionTier);
     
@@ -167,38 +238,70 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateUpgrade03Description() {
+        let fishingAchievementTier = parseInt(localStorage.getItem('fishingAchievementTier')) || 0;
         const multiplierElement03 = document.getElementById('multiplier-value-03');
         if (multiplierElement03) {
-            let multiplier03 = (Math.pow(1.2, achievementCompletionTier)).toFixed(2);
+            let multiplier03 = (Math.pow(1.2, achievementCompletionTier + fishingAchievementTier)).toFixed(2);
             multiplierElement03.textContent = `${multiplier03}`;
         }
     }
+
+    function checkFishingTabButtonVisibility() {
+        // Find the button with the text 'Fishing'
+        const fishingTabButton = Array.from(document.getElementsByClassName('subtab-button')).find(button => button.textContent === 'Fishing');
+        
+        if (fishingTabButton) {
+            // Show or hide the button based on whether fishing is unlocked
+            if (localStorage.getItem('fishingUnlocked') === 'true') {
+                fishingTabButton.style.display = 'inline-block';  // Show the button
+            } else {
+                fishingTabButton.style.display = 'none';  // Hide the button
+            }
+        }
+    } 
+    
+    // Ensure to call this function when the page loads and when an upgrade is purchased:
+    window.addEventListener('DOMContentLoaded', () => {
+        checkFishingTabButtonVisibility();  // Update the visibility of the Fishing tab button on page load
+    });
+    
     function handleUpgradePurchase(upgrade, button) {
         const cost = parseFloat(button.dataset.cost);
         if (score >= cost) {
             score -= cost;
             saveScore();
-            passivePointsPerSecond = upgrade.effect.updatePPG(passivePointsPerSecond);
+            
+            // Handle upgrades with updatePPG function
+            if (upgrade.effect.updatePPG) {
+                passivePointsPerSecond = upgrade.effect.updatePPG(passivePointsPerSecond);
+            }
+    
+            // If upgrade-04 (Fishing) is purchased, unlock Fishing tab button
+            if (upgrade.id === 'upgrade-04') {
+                localStorage.setItem('fishingUnlocked', 'true');  // Store the unlock state
+                document.querySelector('.subtab-button[onclick="showSubtab(\'fishing\')"]').style.display = 'inline-block';  // Show Fishing tab button
+                fishingAchievementElement.style.display = 'block';
+                updateFishLists();
+            }
+    
+            // Update number of upgrades and store purchased upgrades
             numUpgrades = (parseInt(localStorage.getItem('numUpgrades')) || 0) + 1;
             localStorage.setItem('numUpgrades', numUpgrades);
-
+    
             let purchasedUpgrades = JSON.parse(localStorage.getItem('purchasedUpgrades')) || [];
             if (!purchasedUpgrades.includes(upgrade.id)) {
                 purchasedUpgrades.push(upgrade.id);
                 localStorage.setItem('purchasedUpgrades', JSON.stringify(purchasedUpgrades));
             }
-
-            if (upgrade.id === 'upgrade-00') {
-                localStorage.setItem('multiplierUpgrade00', '2');
-            }
-
+    
+            // Change button color and disable it after purchase
             button.disabled = true;
             button.style.backgroundColor = '#3fbf3f'; // Green
         } else {
             flashButtonRed(button);
         }
         updateDisplays();
-    }
+    }    
 
     function flashButtonRed(button) {
         button.style.backgroundColor = '#ff3f3f';
@@ -210,16 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
         settingsTabContent.style.display = tab === 'settings' ? 'block' : 'none';
         achievementsTabContent.style.display = tab === 'achievements' ? 'block' : 'none';
     }
-
-    function showSubtab(subtabId) {
-        // Hide all subtabs
-        document.querySelectorAll('.subtab-content').forEach(subtab => {
-            subtab.style.display = 'none';
-        });
     
-        // Show the selected subtab
-        document.getElementById(subtabId + '-subtab').style.display = 'block';
-    }    
     window.showSubtab = showSubtab;
 
     function showPopup(message, color = 'yellow') {  // Default to yellow
@@ -274,7 +368,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2000);
     }
     
-
     function hardReset() {
         if (confirm('Are you sure you want to reset the game?')) {
             localStorage.clear();
@@ -303,15 +396,20 @@ document.addEventListener('DOMContentLoaded', () => {
             fishCounts = [0, 0, 0, 0, 0]; // Starting counts for all fish
             fishProbabilities = [1, 0, 0, 0, 0]; // Starting probabilities (only red fish available)
             fishingTimer = 0; // Reset the fishing cooldown timer
-    
             // Update the UI to reflect the reset state
             updateFishLists();
+            
+            // Hide Fishing subtab and show Upgrades subtab
+            const fishingButton = document.querySelector('.subtab-button:nth-child(2)');
+            fishingButton.style.display = 'none';
+            const upgradesButton = document.querySelector('.subtab-button:nth-child(1)');
+            upgradesButton.click(); // Switch to Upgrades subtab
+            updateFishingAchievement();
+            fishingAchievementElement.style.display = 'none';
         }
-    }
+    }    
     
-
     function updateUI() {
-        console.log(`XP Percentage: ${(achievementXP / 100) * 100}%`);
         xpText.textContent = `${achievementXP} / 100 XP`;
         xpFill.style.width = `${(achievementXP / 100) * 100}%`; // Dynamically adjust the width based on XP progress
         achievementTier.textContent = `${achievementCompletionTier} / 5`;
@@ -326,14 +424,19 @@ document.addEventListener('DOMContentLoaded', () => {
         xpText.textContent = `${achievementXP} / 100 XP`;
         xpFill.style.width = `${(achievementXP / 100) * 100}%`; // Dynamically adjust the width based on XP progress
         achievementTier.textContent = `${achievementCompletionTier} / 5`; // Display current tier
-        requirementText.textContent = `${Math.round(score)} / ${scoreThresholds[achievementCompletionTier] || 500}`;
+    
+        // Check if all tiers are completed
+        if (achievementCompletionTier >= 5) {
+            requirementText.textContent = "Completed!"; // Display "Completed!" when all tiers are completed
+        } else {
+            requirementText.textContent = `${Math.round(score)} / ${scoreThresholds[achievementCompletionTier] || 500} points`;
+        }
+    
         rewardText.textContent = `${Math.pow(1.5, achievementCompletionTier).toFixed(2)}x Points)`;
         checkClaimReward();
-    }
+    }    
 
     function checkClaimReward() {
-        console.log(`Achievement XP: ${achievementXP}, Required XP: ${scoreThresholds[achievementCompletionTier - 1]}, Tier: ${achievementCompletionTier}`);
-    
         // Get the last shown tier from localStorage or default to an empty object
         let shownTiers = JSON.parse(localStorage.getItem('shownTiers')) || {};
     
@@ -356,7 +459,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-    
+
+    document.getElementById("claim-reward-btn").addEventListener("click", claimReward);
     function claimReward() {
         if (achievementCompletionTier < 5) {
             achievementCompletionTier++; // Increment tier on button click
@@ -368,41 +472,174 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    claimButton.addEventListener('click', claimReward);
-    updateScoreAchievement(); // Ensure it's called on DOM load
-    updateUI(); // Ensure it's called on DOM load
+// Initialize fish types and their data
+const fishTypes = [
+    { name: "Red Snapper", multiplier: 0.1 },
+    { name: "Orange Tang", multiplier: 0.2 },
+    { name: "Yellow Perch", multiplier: 0.3 },
+    { name: "Green Bass", multiplier: 0.5 },
+    { name: "Blue Drop", multiplier: 1.0 }
+];
 
-    // Define fish types
-    const fishTypes = [
-        { name: "Red Snapper", multiplier: 0.1 },
-        { name: "Orange Tang", multiplier: 0.2 },
-        { name: "Yellow Perch", multiplier: 0.3 },
-        { name: "Green Bass", multiplier: 0.5 },
-        { name: "Blue Drop", multiplier: 1.0 }
-    ];
+let fishProbabilities = [1, 0, 0, 0, 0]; // Unlock fish probabilities
+let fishCounts = JSON.parse(localStorage.getItem('fishCounts')) || [0, 0, 0, 0, 0]; // Fish counts per type
+let fishingAchievementTier = parseInt(localStorage.getItem('fishingAchievementTier')) || 0; // Fishing achievement progress
 
-    // Initial probabilities (only red fish is available)
-    let fishProbabilities = [1, 0, 0, 0, 0];
+let fishCatchRequirements = [10, 10, 10, 10, 10]; // Catch requirements per tier
 
-    // Player's fish counts
-    let fishCounts = [0, 0, 0, 0, 0];
+// DOM elements for UI updates
+const fishingClaimButton = document.getElementById('claim-fishing-reward-btn');
+const fishingTierText = document.getElementById('achievement-fishing-tier');
+const fishingRequirementText = document.getElementById('achievement-fishing-requirement');
+const fishingRewardText = "Reward: Unlocks new fish types per tier, final tier doubles all fish multipliers."
+const fishResultText = document.getElementById('fish-result');
 
-    // Calculate fish multipliers (each fish's count * its multiplier)
-    function calculateMultipliers() {
-        let totalMultiplier = 1; // Start with a base multiplier of 1 (no multiplier initially)
-
-        // Calculate the multiplier for each fish type
-        fishCounts.forEach((count, index) => {
-        if (count > 0) {
-            // Only multiply if there are fish of that type
-            totalMultiplier *= (1 + (count * fishTypes[index].multiplier));
-        }
-    });
-    return totalMultiplier;
+// Function to save fish data to localStorage
+function saveFishData() {
+    localStorage.setItem('fishData', JSON.stringify({ fishCounts, fishProbabilities }));
 }
 
+// Function to load fish data from localStorage
+function loadFishData() {
+    const savedFishData = JSON.parse(localStorage.getItem('fishData'));
+    if (savedFishData) {
+        fishCounts = savedFishData.fishCounts || [0, 0, 0, 0, 0];
+        fishProbabilities = savedFishData.fishProbabilities || [1, 0, 0, 0, 0];
+        updateFishLists();
+        updateFishingAchievement();
+        updateTotalFishMultiplier();
+    }
+}
+
+// Function to update the fishing achievement UI dynamically
+function updateFishingAchievement() {
+    // Update the completion tier text
+    document.getElementById("achievement-fishing-tier").textContent = `${fishingAchievementTier} / 5`;
+
+    if (fishingAchievementTier < 5) {
+        // Update the current requirement text dynamically
+        document.getElementById("achievement-fishing-requirement").textContent = 
+    `${fishCounts[fishingAchievementTier]} / ${fishCatchRequirements[fishingAchievementTier]} ${fishTypes[fishingAchievementTier].name} fish`;
+
+        // Update the reward text dynamically
+        document.getElementById("achievement-fishing-reward").textContent = 
+        (fishingAchievementTier < 4) 
+            ? `Unlock ${fishTypes[fishingAchievementTier + 1].name} fish`
+            : (fishingAchievementTier === 4) 
+                ? "Doubles all fish multipliers!" 
+                : "All rewards unlocked!";    
+    } else {
+        // Completion message when all tiers are completed
+        document.getElementById("achievement-fishing-requirement").textContent = "Completed!";
+        document.getElementById("achievement-fishing-reward").textContent = "All rewards unlocked!";
+    }
+
+    // Update the Claim Reward button state
+    checkFishingClaimReward();
+}
+
+
+// Function to check if the fishing reward can be claimed
+function checkFishingClaimReward() {
+    fishingClaimButton.disabled = !(fishingAchievementTier < 5 && fishCounts[fishingAchievementTier] >= fishCatchRequirements[fishingAchievementTier]);
+}
+
+// Function to claim the fishing reward and update the achievement
+function checkFishingAchievements() {
+    let shownFishTiers = JSON.parse(localStorage.getItem('shownFishTiers')) || {};
+
+    // Check if the player has reached the requirement for each fishing achievement tier
+    for (let tier = 0; tier < 5; tier++) {
+        if (fishCounts[tier] >= fishCatchRequirements[tier] && !shownFishTiers[tier]) {
+            // If the player hasn't seen the popup for this tier, show it
+            showPopup(`Achievement Completed! Pro Angler: Tier ${tier + 1}`);
+            // Mark this popup as shown for the current tier
+            shownFishTiers[tier] = true;
+            // Save the updated shownFishTiers object to localStorage
+            localStorage.setItem('shownFishTiers', JSON.stringify(shownFishTiers));
+        }
+    }
+}
+
+function claimFishingReward() {
+    let shownFishTiers = JSON.parse(localStorage.getItem('shownFishTiers')) || {};
+
+    if (fishingAchievementTier < 5 && fishCounts[fishingAchievementTier] >= fishCatchRequirements[fishingAchievementTier]) {
+        // Increment the tier and update the achievement
+        fishingAchievementTier++;
+        localStorage.setItem('fishingAchievementTier', fishingAchievementTier);
+
+        // Award XP
+        achievementXP += 15;
+        localStorage.setItem('achievementXP', achievementXP);
+
+        // Unlock next fish type or apply reward for the last tier
+        if (fishingAchievementTier === 1) {
+            // After unlocking orange fish, set probabilities
+            fishProbabilities = [0.8, 0.2, 0, 0, 0];
+        } else if (fishingAchievementTier === 2) {
+            // After unlocking yellow fish, set probabilities
+            fishProbabilities = [0.63, 0.25, 0.12, 0, 0];    
+        } else if (fishingAchievementTier === 3) {
+            // After unlocking green fish, set probabilities
+            fishProbabilities = [0.58, 0.23, 0.12, 0.07, 0]; 
+        } else if (fishingAchievementTier === 4) {
+            // After unlocking blue fish, set probabilities
+            fishProbabilities = [0.55, 0.23, 0.12, 0.07, 0.03];
+        } else if (fishingAchievementTier === 5) {
+            // Tier 5: Double all fish multipliers
+            fishTypes.forEach(fish => {
+                fish.multiplier *= 2; // Double each fish multiplier
+            });
+        }
+
+        // Save updated data and refresh the UI
+        saveFishData(); // Save changes
+        updateUI(); // Refresh the UI
+        updateFishingAchievement(); // Update the Fishing achievement UI
+        updateFishLists(); // Update the fish statistics list
+        updateTotalFishMultiplier();
+    }
+}
+
+// Event listener for claim button
+fishingClaimButton.addEventListener('click', claimFishingReward);
+
+// Function to update the fish lists on the UI
+function updateFishLists() {
+    let lists = {
+        counts: document.getElementById("fish-counts-list"),
+        multipliers: document.getElementById("fish-multipliers-list"),
+        rarities: document.getElementById("fish-rarities-list"),
+    };
+
+    // Clear lists
+    Object.values(lists).forEach(list => list.innerHTML = "");
+
+    const fishColors = ["#FF3F3F", "#FF9F3F", "#FFFF3F", "#3FFF3F", "#3FBFFF"]; // Red, Orange, Yellow, Green, Blue
+
+    fishTypes.forEach((fish, index) => {
+        let locked = fishProbabilities[index] === 0;
+        let count = fishCounts[index] || 0; // Default to 0
+        let multiplier = (1 + count * fish.multiplier).toFixed(2);
+        let rarity = (fishProbabilities[index] * 100).toFixed(2) + "%";
+
+        let lockedText = locked ? `<span class="locked-bar">Locked</span> ` : "";
+
+        // Always display all fish, even if count is 0
+        lists.counts.innerHTML += `<li class="fish-list-item" style="color:${fishColors[index]}">${lockedText}${fish.name}: ${count}</li>`;
+        lists.multipliers.innerHTML += `<li class="fish-list-item" style="color:${fishColors[index]}">${lockedText}${fish.name}: ${multiplier}x</li>`;
+        lists.rarities.innerHTML += `<li class="fish-list-item" style="color:${fishColors[index]}">${lockedText}${fish.name}: ${rarity} chance</li>`;
+    });
+}
+
+// Fishing mechanism
+document.getElementById("fish-button").addEventListener("click", catchFish);
+
+let CatchMultiplier = 1;
+
+// Catch fish logic
 function catchFish() {
-    // Choose a fish based on probabilities
     let random = Math.random();
     let cumulative = 0;
     let chosenFishIndex = 0;
@@ -416,159 +653,132 @@ function catchFish() {
     }
 
     let chosenFish = fishTypes[chosenFishIndex];
-    
-    // Update fish count
-    fishCounts[chosenFishIndex]++;
-    saveFishData(); // Save the updated fish data
-
-    // Get the color of the fish based on its type
+    const fishCaught = CatchMultiplier;
+    fishCounts[chosenFishIndex] += fishCaught;
+    saveFishData();
+    updateFishingAchievement();
+    checkFishingAchievements();
     const fishColors = ["#FF3F3F", "#FF9F3F", "#FFFF3F", "#3FFF3F", "#3FBFFF"];
-    const fishColor = fishColors[chosenFishIndex]; // Get color based on chosen fish type
-
-    // Display result with colored fish name
-    const fishResultText = `You caught a <span style="color: ${fishColor};">${chosenFish.name}</span>! It provides a +${chosenFish.multiplier}x multiplier to point gain.`;
+    const fishResultText = `You caught a <span style="color: ${fishColors[chosenFishIndex]};">${chosenFish.name}</span>! It provides a +${chosenFish.multiplier}x multiplier to point gain.`;
     document.getElementById("fish-result").innerHTML = fishResultText;
 
-    // Update fish multipliers and PPG
     updateFishLists();
     updatePPG();
+    updateTotalFishMultiplier();
 
-    // Disable button for 30 seconds
-    let fishButton = document.getElementById("fish-button");
-    fishButton.disabled = true;
-    fishButton.textContent = "No fish yet... (30s)";
-
+    // Set initial cooldown time and save to localStorage
     let timeLeft = 30;
+    localStorage.setItem('timeLeft', timeLeft);  // Save the initial cooldown time
+
+    let fishButton = document.getElementById("fish-button");
+    fishButton.disabled = true;  // Disable the button during cooldown
+    fishButton.textContent = `No fish yet... (${timeLeft}s)`;  // Update button text
+
+    // Start the countdown for the cooldown timer
     let timer = setInterval(() => {
         timeLeft--;
-        fishButton.textContent = `No fish yet... (${timeLeft}s)`;
-
-        // Save the timer state to localStorage every second
-        localStorage.setItem('fishTimerState', JSON.stringify({ timeLeft: timeLeft, isDisabled: true }));
+        localStorage.setItem('timeLeft', timeLeft);  // Save the remaining time in localStorage
+        fishButton.textContent = `No fish yet... (${timeLeft}s)`;  // Update button text with remaining time
 
         if (timeLeft <= 0) {
             clearInterval(timer);
-            fishButton.disabled = false;
-            fishButton.textContent = "Catch Fish! 🐟";
-
-            // Reset the timer state once it's finished
-            localStorage.setItem('fishTimerState', JSON.stringify({ timeLeft: 0, isDisabled: false }));
+            fishButton.disabled = false;  // Enable button when cooldown finishes
+            fishButton.textContent = "Catch Fish! 🐟";  // Reset button text
+            localStorage.setItem('timeLeft', 0);  // Reset timeLeft in localStorage when cooldown ends
         }
     }, 1000);
-
-    // Save the initial state
-    localStorage.setItem('fishTimerState', JSON.stringify({ timeLeft: timeLeft, isDisabled: true }));
 }
-    
-    window.catchFish = catchFish;
 
-    function updateFishLists() {
-        let countsList = document.getElementById("fish-counts-list");
-        let multipliersList = document.getElementById("fish-multipliers-list");
-        let raritiesList = document.getElementById("fish-rarities-list");
-    
-        countsList.innerHTML = "";
-        multipliersList.innerHTML = "";
-        raritiesList.innerHTML = "";
-    
-        // Define colors for each fish type
-        const fishColors = ["#FF3F3F", "#FF9F3F", "#FFFF3F", "#3FFF3F", "#3FBFFF"]; // Red, Orange, Yellow, Green, Blue
-    
-        fishTypes.forEach((fish, index) => {
-            // Check if the fish is locked (probability is 0)
-            let locked = fishProbabilities[index] === 0;
-            
-            // Fish count
-            let countItem = document.createElement("li");
-            countItem.classList.add("fish-list-item");
-            if (locked) {
-                countItem.innerHTML = `<div class="locked-bar">Locked</div>${fish.name}: ${fishCounts[index]}`;
+// Load the cooldown state when the page loads
+    let timeLeft = parseInt(localStorage.getItem('timeLeft')) || 0;
+    const fishButton = document.getElementById("fish-button");
+
+    // Check if the timeLeft from localStorage is still greater than 0
+    if (timeLeft > 0) {
+        fishButton.disabled = true;  // Disable the button
+        fishButton.textContent = `No fish yet... (${timeLeft}s)`;  // Show the remaining time
+        let timer = setInterval(() => {
+            timeLeft--;
+            localStorage.setItem('timeLeft', timeLeft);  // Save the remaining time
+
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                fishButton.disabled = false;  // Enable the button
+                fishButton.textContent = "Catch Fish! 🐟";  // Reset button text
+                localStorage.setItem('timeLeft', 0);  // Reset timeLeft in localStorage when cooldown ends
             } else {
-                countItem.innerHTML = `${fish.name}: ${fishCounts[index]}`;
+                fishButton.textContent = `No fish yet... (${timeLeft}s)`;  // Update button text with remaining time
             }
-            countItem.style.color = fishColors[index]; // Set color based on fish type
-            countsList.appendChild(countItem);
-    
-            // Multiplier
-            let multiplierItem = document.createElement("li");
-            multiplierItem.classList.add("fish-list-item");
-            let totalMultiplier = 1 + (fishCounts[index] * fish.multiplier);
-            if (locked) {
-                multiplierItem.innerHTML = `<div class="locked-bar">Locked</div>${fish.name}: ${totalMultiplier.toFixed(2)}x`;
-            } else {
-                multiplierItem.innerHTML = `${fish.name}: ${totalMultiplier.toFixed(2)}x`;
-            }
-            multiplierItem.style.color = fishColors[index]; // Set color based on fish type
-            multipliersList.appendChild(multiplierItem);
-    
-            // Rarity
-            let rarityItem = document.createElement("li");
-            rarityItem.classList.add("fish-list-item");
-            let percentage = (fishProbabilities[index] * 100).toFixed(2);
-            if (locked) {
-                rarityItem.innerHTML = `<div class="locked-bar">Locked</div>${fish.name}: ${percentage}% chance`;
-            } else {
-                rarityItem.innerHTML = `${fish.name}: ${percentage}% chance`;
-            }
-            rarityItem.style.color = fishColors[index]; // Set color based on fish type
-            raritiesList.appendChild(rarityItem);
-        });
+        }, 1000);
+    } else {
+        fishButton.disabled = false;  // Enable the button if timeLeft is 0
+        fishButton.textContent = "Catch Fish! 🐟";  // Reset button text
     }
-    
-    // Call update function initially to populate lists
-    updateFishLists();
-    
-// Save fish data to localStorage whenever the fish count is updated
-function saveFishData() {
-    const fishData = {
-        fishCounts: fishCounts,
-        fishProbabilities: fishProbabilities // Save probabilities too, in case they're updated
-    };
-    localStorage.setItem('fishData', JSON.stringify(fishData));
-}
 
+function calculateMultipliers() {
+    let totalMultiplier = 1; // Start with a base multiplier of 1
 
-// Load fish data from localStorage on page load
-function loadFishData() {
-    const savedFishData = JSON.parse(localStorage.getItem('fishData'));
-    if (savedFishData) {
-        fishCounts = savedFishData.fishCounts || [0, 0, 0, 0, 0]; // Default to 0 if no data exists
-        fishProbabilities = savedFishData.fishProbabilities || [1, 0, 0, 0, 0]; // Default probabilities (Red fish only)
-        updateFishLists();  // Update fish count, multipliers, and rarities lists
-    }
-}
-    
-    // Call loadFishData on page load
-    window.onload = function() {
-        // Load fish data
-        loadFishData();
-    
-        // Restore the timer state if it exists
-        const timerState = JSON.parse(localStorage.getItem('fishTimerState'));
-    
-        if (timerState && timerState.isDisabled) {
-            let fishButton = document.getElementById("fish-button");
-            fishButton.disabled = true;
-            let timeLeft = timerState.timeLeft;
-            fishButton.textContent = `No fish yet... (${timeLeft}s)`;
-    
-            let timer = setInterval(() => {
-                timeLeft--;
-                fishButton.textContent = `No fish yet... (${timeLeft}s)`;
-    
-                // Update the timer state as it counts down
-                localStorage.setItem('fishTimerState', JSON.stringify({ timeLeft: timeLeft, isDisabled: true }));
-    
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    fishButton.disabled = false;
-                    fishButton.textContent = "Catch Fish! 🐟";
-                    localStorage.setItem('fishTimerState', JSON.stringify({ timeLeft: 0, isDisabled: false }));
-                }
-            }, 1000);
+    // Loop through each fish type
+    fishTypes.forEach((fish, index) => {
+        if (fishProbabilities[index] > 0) {
+            // Add the multiplier effect from each fish
+            totalMultiplier *= (1 + (fishCounts[index] * fish.multiplier));
         }
-    };
+    });
+
+    return totalMultiplier;
+}
+
+function updateTotalFishMultiplier() {
+    // Initialize the total multiplier
+    let totalMultiplier = 1;
+
+    // Create an array to hold the individual multipliers for display
+    let multiplierList = [];
+
+    // Iterate through fishTypes and calculate the total multiplier
+    fishTypes.forEach((fish, index) => {
+        // Get the count for the current fish type (assuming it's in fishCounts)
+        let count = fishCounts[index] || 0;
+        // Calculate the multiplier for this fish type
+        let multiplier = (1 + count * fish.multiplier);
+        // Add the multiplier with the corresponding color to the list
+        multiplierList.push(`<span style="color: ${getFishColor(index)}">${multiplier.toFixed(2)}</span>`);
+        // Multiply it to the total multiplier
+        totalMultiplier *= multiplier;
+    });
+
+    // Update the display with the total fish multiplier
+    document.getElementById("total-fish-multiplier").innerHTML = 
+        `Total Fish Multiplier to Points: ${multiplierList.join(" x ")} = ${totalMultiplier.toFixed(2)}`;
+}
+
+// Helper function to get the color for each fish based on its index
+function getFishColor(index) {
+    const fishColors = [
+        "#FF3F3F",   // Red Snapper
+        "#FF9F3F", // Orange Tang
+        "#FFFF3F", // Yellow Perch
+        "#3FFF3F",  // Green Bass
+        "#3FBFFF"    // Blue Drop
+    ];
+    return fishColors[index] || "black"; // Default to black if index is out of range
+}
+
+window.onload = function () {
+    loadFishData();
+};
+
+    function updateFishingVisibility() {
+        if (localStorage.getItem('fishingUnlocked') === 'true') {
+            document.getElementById('fishing-subtab').style.display = 'block';
+        } else {
+            document.getElementById('fishing-subtab').style.display = 'none';
+        }
+    }
     
+    // Call this function after loading the game state
+    updateFishingVisibility();    
     
     // Increment score by PPG every second
     function incrementScore() {

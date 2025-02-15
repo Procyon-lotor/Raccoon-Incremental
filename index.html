@@ -77,18 +77,27 @@
                     <p id="upgrade-03-description" class="upgrade-effect">Effect: Points <span id="multiplier-value-03">???</span>x</p>
                 </div>
             </div>
+
+            <!-- Fifth upgrade -->
+            <div class="upgrade-button-wrapper">
+                <button id="upgrade-04" class="upgrade-btn" data-cost="2000">04</button>
+                <div class="upgrade-description">
+                    <p class="upgrade-name">Buy a Boat</p>
+                    <p class="upgrade-description-text">Unlock Fishing!</p>
+                    <p class="upgrade-cost">Cost: 2000 points</p>
+                    <p class="upgrade-effect"></p>
+                </div>
+            </div>
         </div> <!-- End of .upgrade-buttons-container -->
     </div> <!-- End of #upgrades-subtab -->
 
-    <!-- Future Feature Subtab -->
-<!-- Fishing Subtab -->
 <!-- Fishing Subtab -->
 <div id="fishing-subtab" class="subtab-content" style="display: none;">
     <h2 class="fishing-header">Fishing</h2>
     <p>Because your raccoons need to eat something, right?</p>
     <p class="fishing-description">Click the button below to catch a fish! Fish provide different multipliers to your point gain.</p>
     <h3 id="fish-result" style="margin-top: 10px;"></h3>
-    <button id="fish-button" onclick="catchFish()">Catch Fish! 🐟</button>
+    <button id="fish-button">Catch Fish! 🐟</button>
     
     <div class="fish-info-container">
         <div class="fish-column">
@@ -106,6 +115,7 @@
             <ul id="fish-rarities-list"></ul>
         </div>
     </div>
+    <h3 id="total-fish-multiplier">Total Fish Multiplier to Points: </h3>
 </div>
 
 </div> <!-- End of #main-tab-content -->
@@ -141,25 +151,35 @@
         <span id="achievement-xp-text">0 / 100 XP</span> <!-- This will display the current and required XP -->
       </div>
     
-      <div id="achievements-list">
-        <!-- Achievements will be dynamically added here -->
+      <div id="achievements-list" style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <!-- Score Master Achievement -->
         <div class="achievement-box" id="achievement-score">
           <h3>Score Master</h3>
           <p>Reach a certain number of points.</p>
-          <p>Requirement: <span id="achievement-score-requirement">0 / 100</span> points</p>
+          <p>Requirement: <span id="achievement-score-requirement">0 / 100</span></p>
           <p>Completion Tier: <span id="achievement-score-tier">0 / 5</span></p>
           <p>Reward: 1.5x Points per tier (Currently: <span id="achievement-score-reward">1x)</span></p>
           <button id="claim-reward-btn" class="claim-reward-btn" disabled>Claim Reward (+10 XP)</button>
         </div>
+      
+        <!-- Master Angler Achievement -->
+        <div class="achievement-box" id="achievement-fishing" style="display: none;">
+          <h3>Pro Angler</h3>
+          <p>Catch different types of fish.</p>
+          <p>Requirement: <span id="achievement-fishing-requirement">0 / 10</span></p>
+          <p>Completion Tier: <span id="achievement-fishing-tier">0 / 5</span></p>
+          <p>Reward: <span id="achievement-fishing-reward">Unlocks new fish types per tier, final tier doubles all fish multipliers.</span></p>
+          <button id="claim-fishing-reward-btn" class="claim-reward-btn" disabled>Claim Reward (+15 XP)</button>
+        </div>          
       </div>
-    </div>
+    </div>      
 
     <div id="popup-container"></div>
 
     
 
     <!-- Changelog Button -->
-    <a href="changelog.html" class="changelog-button">Changelog (v0.8)</a>
+    <a href="changelog.html" class="changelog-button">Changelog (v0.9)</a>
 
     <!-- Link to the JavaScript file -->
     <script src="app.js" defer></script>
