@@ -33,6 +33,7 @@
 
     <!-- Upgrades Subtab -->
     <div id="upgrades-subtab" class="subtab-content" style="display: block;">
+        <h3 id="num-upgrades-description">You have purchased 0 upgrades</h3>
         <div class="upgrade-buttons-container">
             <!-- First upgrade -->
             <div class="upgrade-button-wrapper">
@@ -86,6 +87,39 @@
                     <p class="upgrade-description-text">Unlock Fishing!</p>
                     <p class="upgrade-cost">Cost: 2000 points</p>
                     <p class="upgrade-effect"></p>
+                </div>
+            </div>
+
+            <!-- Sixth upgrade -->
+            <div class="upgrade-button-wrapper">
+                <button id="upgrade-05" class="upgrade-btn" data-cost="10000">05</button>
+                <div class="upgrade-description">
+                    <p class="upgrade-name">Sturdier Hook</p>
+                    <p class="upgrade-description-text">Have a 15% chance to catch double fish.</p>
+                    <p class="upgrade-cost">Cost: 10000 points</p>
+                    <p class="upgrade-effect"></p>
+                </div>
+            </div>
+
+            <!-- Seventh upgrade -->
+            <div class="upgrade-button-wrapper">
+                <button id="upgrade-06" class="upgrade-btn" data-cost="15000">06</button>
+                <div class="upgrade-description">
+                    <p class="upgrade-name">Premium Bait</p>
+                    <p class="upgrade-description-text">Wow, that cooldown timer is really slow! How about we speed it up based on your current points?</p>
+                    <p class="upgrade-cost">Cost: 15000 points</p>
+                    <p id="upgrade-06-description" class="upgrade-effect">Effect: Fishing cooldown timer is <span id="timer-value-06"></span> seconds faster</p>
+                </div>
+            </div>
+
+            <!-- Eighth upgrade -->
+            <div class="upgrade-button-wrapper">
+                <button id="upgrade-07" class="upgrade-btn" data-cost="25000">07</button>
+                <div class="upgrade-description">
+                    <p class="upgrade-name">Even Stronger with Time</p>
+                    <p class="upgrade-description-text">Improve the multiplier of Upgrade 01 (points<sup>0.2</sup> → points<sup>0.25</sup>)</p>
+                    <p class="upgrade-cost">Cost: 25000 points</p>
+                    <p id="upgrade-06-description" class="upgrade-effect"></p>
                 </div>
             </div>
         </div> <!-- End of .upgrade-buttons-container -->
@@ -179,7 +213,7 @@
     
 
     <!-- Changelog Button -->
-    <a href="changelog.html" class="changelog-button">Changelog (v0.9)</a>
+    <a href="changelog.html" class="changelog-button">Changelog (v0.10)</a>
 
     <!-- Link to the JavaScript file -->
     <script src="app.js" defer></script>

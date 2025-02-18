@@ -45,9 +45,19 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'upgrade-01', cost: 40, effect: { name: 'Second Upgrade', description: 'Increase PPG by current points^0.2.', updatePPG: (ppg) => ppg * Math.max(Math.pow(score, 0.2), 1) } },
         { id: 'upgrade-02', cost: 300, effect: { name: 'Third Upgrade', description: 'Increase PPG based on number of upgrades purchased in this row.', updatePPG: (ppg) => ppg * Math.pow(numUpgrades, 0.5) + 1}},
         { id: 'upgrade-03', cost: 1000, effect: { name: 'Fourth Upgrade', description: 'Increase PPG based on total achievement completion tiers.', updatePPG: (ppg) => ppg * Math.pow(1.2, achievementCompletionTier + fishingAchievementTier)}},
-        { id: 'upgrade-04', cost: 2000, effect: { name: 'Fifth Upgrade', description: 'Unlocks Fishing.', unlockFishing: true }
-        }
+        { id: 'upgrade-04', cost: 2000, effect: { name: 'Fifth Upgrade', description: 'Unlocks Fishing.', unlockFishing: true }},
+        { id: 'upgrade-05', cost: 10000, effect: { name: 'Sixth Upgrade', description: 'Have a 15% chance to catch double fish.'}},
+        { id: 'upgrade-06', cost: 15000, effect: { name: 'Seventh Upgrade', description: 'Decrease the fishing cooldown timer based on current points.'}},
+        { id: 'upgrade-07', cost: 25000, effect: { name: 'Eighth Upgrade', description: 'Improve the effect of Upgrade 01'}}
     ];
+
+    function updateNumUpgradesDescription() {
+        const numUpgradesDescription = document.getElementById('num-upgrades-description');
+        
+        // Update the text content of the element to show the number of upgrades purchased
+        numUpgradesDescription.textContent = `You have purchased ${numUpgrades} upgrades`;
+    }
+    updateNumUpgradesDescription();
 
     // Event Listeners
     mainTabBtn.addEventListener('click', () => toggleTabs('main'));
@@ -124,6 +134,7 @@ window.addEventListener('DOMContentLoaded', () => {
         updateUpgrade01Description();
         updateUpgrade02Description();
         updateUpgrade03Description();
+        updateUpgrade06Description();
     }
 
     function saveScore() {
@@ -167,7 +178,11 @@ window.addEventListener('DOMContentLoaded', () => {
         }
         
         if (purchasedUpgrades.includes('upgrade-01')) {
-            passivePointsPerSecond *= Math.pow(score, 0.2); // Apply Upgrade 01 effect
+            if (purchasedUpgrades.includes('upgrade-07')) {
+                passivePointsPerSecond *= Math.pow(score, 0.25); // Apply Upgrade 01 effect with Upgrade 07
+            } else {
+                passivePointsPerSecond *= Math.pow(score, 0.2); // Apply Upgrade 01 effect without Upgrade 07
+            }
         }
         
         if (purchasedUpgrades.includes('upgrade-02')) {
@@ -197,38 +212,59 @@ window.addEventListener('DOMContentLoaded', () => {
     function updatePPG() {
         let calculatedPPG = 1;
         const purchasedUpgrades = JSON.parse(localStorage.getItem('purchasedUpgrades')) || [];
+        
         if (purchasedUpgrades.includes('upgrade-00')) {
             calculatedPPG *= 2;
         }
+        
         if (purchasedUpgrades.includes('upgrade-01')) {
-            calculatedPPG *= Math.pow(score, 0.2);
+            if (purchasedUpgrades.includes('upgrade-07')) {
+                calculatedPPG *= Math.pow(score, 0.25); // Apply Upgrade 01 effect with Upgrade 07
+            } else {
+                calculatedPPG *= Math.pow(score, 0.2); // Apply Upgrade 01 effect without Upgrade 07
+            }
         }
+        updateUpgrade01Description();
+        
         if (purchasedUpgrades.includes('upgrade-02')) {
             calculatedPPG *= Math.pow(numUpgrades, 0.5) + 1;
         }
+        
         if (purchasedUpgrades.includes('upgrade-03')) {
             calculatedPPG *= Math.pow(1.2, achievementCompletionTier + fishingAchievementTier);
         }
+        
         calculatedPPG *= Math.pow(1.5, achievementCompletionTier);
-    
+        
         // Get the total multiplier from the fish types
         const fishMultiplier = calculateMultipliers();  // This is now a single value
-    
+        
         // Apply the fish multiplier
         calculatedPPG *= fishMultiplier;
-    
+        
         passivePointsPerSecond = calculatedPPG;
         updateDisplays();
     }    
 
     function updateUpgrade01Description() {
         const multiplierElement = document.getElementById('multiplier-value');
+        const purchasedUpgrades = JSON.parse(localStorage.getItem('purchasedUpgrades')) || [];
+        
+        let multiplier;
+    
+        // Check if Upgrade 07 (id: 'upgrade-07') is purchased and update the multiplier accordingly
+        if (purchasedUpgrades.includes('upgrade-07')) {
+            multiplier = Math.pow(score, 0.25);  // Apply the new multiplier formula (points ^ 0.25)
+        } else {
+            multiplier = Math.pow(score, 0.2);  // Default multiplier formula (points ^ 0.2)
+        }
+    
+        // Update the displayed multiplier in the description dynamically
         if (multiplierElement) {
-            let multiplier = Math.max(Math.pow(score, 0.2), 1).toFixed(2);
-            multiplierElement.textContent = `${multiplier}`;
+            multiplierElement.textContent = `${Math.max(multiplier, 1).toFixed(2)}`;
         }
     }
-
+    
     function updateUpgrade02Description() {
         const multiplierElement02 = document.getElementById('multiplier-value-02');
         if (multiplierElement02) {
@@ -243,6 +279,14 @@ window.addEventListener('DOMContentLoaded', () => {
         if (multiplierElement03) {
             let multiplier03 = (Math.pow(1.2, achievementCompletionTier + fishingAchievementTier)).toFixed(2);
             multiplierElement03.textContent = `${multiplier03}`;
+        }
+    }
+
+    function updateUpgrade06Description() {
+        const timerElement06 = document.getElementById('timer-value-06');
+        if (timerElement06) {
+            let timer06 = (30 - Math.min(100 / Math.log10(Math.max(score, 2)), 30)).toFixed(2);
+            timerElement06.textContent = `${timer06}`;
         }
     }
 
@@ -301,6 +345,7 @@ window.addEventListener('DOMContentLoaded', () => {
             flashButtonRed(button);
         }
         updateDisplays();
+        updateNumUpgradesDescription();
     }    
 
     function flashButtonRed(button) {
@@ -406,6 +451,7 @@ window.addEventListener('DOMContentLoaded', () => {
             upgradesButton.click(); // Switch to Upgrades subtab
             updateFishingAchievement();
             fishingAchievementElement.style.display = 'none';
+            updateNumUpgradesDescription();
         }
     }    
     
@@ -653,11 +699,20 @@ function catchFish() {
     }
 
     let chosenFish = fishTypes[chosenFishIndex];
-    const fishCaught = CatchMultiplier;
+    
+    // Determine the number of fish caught
+    let fishCaught = CatchMultiplier;
+
+    // Check if Upgrade 06 (id: upgrade-05) is purchased for a 15% chance to double fish caught
+    if (JSON.parse(localStorage.getItem("purchasedUpgrades") || "[]").includes("upgrade-05") && Math.random() < 0.15) {
+        fishCaught *= 2; // Double the fish caught
+    }    
+
     fishCounts[chosenFishIndex] += fishCaught;
     saveFishData();
     updateFishingAchievement();
     checkFishingAchievements();
+
     const fishColors = ["#FF3F3F", "#FF9F3F", "#FFFF3F", "#3FFF3F", "#3FBFFF"];
     const fishResultText = `You caught a <span style="color: ${fishColors[chosenFishIndex]};">${chosenFish.name}</span>! It provides a +${chosenFish.multiplier}x multiplier to point gain.`;
     document.getElementById("fish-result").innerHTML = fishResultText;
@@ -666,25 +721,32 @@ function catchFish() {
     updatePPG();
     updateTotalFishMultiplier();
 
-    // Set initial cooldown time and save to localStorage
-    let timeLeft = 30;
-    localStorage.setItem('timeLeft', timeLeft);  // Save the initial cooldown time
+    // Determine the cooldown time based on Upgrade 07 (id: upgrade-06)
+    let baseCooldown = 30;
+    if (JSON.parse(localStorage.getItem("purchasedUpgrades") || "[]").includes("upgrade-06")) {
+        let newCooldown = 100 / Math.log10(Math.max(score, 2)); // Prevent log(0) or log(1) issues
+        baseCooldown = Math.min(newCooldown, 30); // Ensure maximum of 30s cooldown
+    }
+
+    // Set cooldown time and save to localStorage
+    let timeLeft = baseCooldown;
+    localStorage.setItem('timeLeft', timeLeft);
 
     let fishButton = document.getElementById("fish-button");
-    fishButton.disabled = true;  // Disable the button during cooldown
-    fishButton.textContent = `No fish yet... (${timeLeft}s)`;  // Update button text
+    fishButton.disabled = true;
+    fishButton.textContent = `No fish yet... (${Math.ceil(timeLeft)}s)`; // Round to avoid decimals in UI
 
     // Start the countdown for the cooldown timer
     let timer = setInterval(() => {
         timeLeft--;
-        localStorage.setItem('timeLeft', timeLeft);  // Save the remaining time in localStorage
-        fishButton.textContent = `No fish yet... (${timeLeft}s)`;  // Update button text with remaining time
+        localStorage.setItem('timeLeft', timeLeft);
+        fishButton.textContent = `No fish yet... (${Math.ceil(timeLeft)}s)`;
 
         if (timeLeft <= 0) {
             clearInterval(timer);
-            fishButton.disabled = false;  // Enable button when cooldown finishes
-            fishButton.textContent = "Catch Fish! 🐟";  // Reset button text
-            localStorage.setItem('timeLeft', 0);  // Reset timeLeft in localStorage when cooldown ends
+            fishButton.disabled = false;
+            fishButton.textContent = "Catch Fish! 🐟";
+            localStorage.setItem('timeLeft', 0);
         }
     }, 1000);
 }
@@ -725,7 +787,6 @@ function calculateMultipliers() {
             totalMultiplier *= (1 + (fishCounts[index] * fish.multiplier));
         }
     });
-
     return totalMultiplier;
 }
 

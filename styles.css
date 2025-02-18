@@ -423,7 +423,7 @@ body {
   grid-template-rows: repeat(10, 60px);    /* 10 rows, each 60px high */
   gap: 10px; /* Optional: space between buttons */
   position: fixed;
-  top: 20px; /* Adjust to position from the top of the screen */
+  top: 50px; /* Adjust to position from the top of the screen */
   left: 240px; /* Adjust to compensate for the sidebar taking up 160px */
   width: calc(100% - 240px); /* Take the full width minus the sidebar */
   height: calc(100% - 40px); /* Take full height minus the top margin */
@@ -910,5 +910,9 @@ body {
 }
 
 #total-fish-multiplier {
+  margin-top: 30px;
+}
+
+#num-upgrades-description {
   margin-top: 30px;
 }
